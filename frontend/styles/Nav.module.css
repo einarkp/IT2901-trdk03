@@ -44,3 +44,8 @@
     width: 28px;
     height: 28px;
 }
+
+.peopleIcon:hover {
+    cursor: pointer;
+    background: red;
+}
