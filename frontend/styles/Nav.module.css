@@ -6,6 +6,7 @@
     background-color: #FFFFFF;
     color: #fff;
     height: 80px;
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, .4);
 }
 
 .logo{ 
