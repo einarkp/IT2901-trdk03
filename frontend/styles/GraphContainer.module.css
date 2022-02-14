@@ -1,0 +1,18 @@
+.container{
+    min-width: 70%;
+    border: 1px solid black;
+    height: 80vh;
+    display: flex;
+    flex-direction: row;
+}
+.graph{
+    width: 65%;
+    height: 100%;
+    border: 2px solid blue;
+}
+.info{
+    width: 35%;
+    height: 100%;
+    border: 2px solid red;
+    background-color: #E7E7E7;
+}
