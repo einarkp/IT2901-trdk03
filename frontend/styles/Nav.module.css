@@ -30,6 +30,15 @@
     font-weight: bold;
     font-size: 1.3rem;
     margin: 5px 30px;
+    background: 
+      linear-gradient(currentColor 0 0) 
+      bottom /var(--d, 0) 2px 
+      no-repeat;
+    transition:0.3s;
+
+}
+.nav ul li a:hover{
+    --d: 100%;
 }
 .peopleIcon{
     width: 28px;
