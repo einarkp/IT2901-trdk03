@@ -1,18 +1,19 @@
-.container{
-    min-width: 70%;
-    border: 1px solid black;
-    height: 80vh;
-    display: flex;
-    flex-direction: row;
+.container {
+  min-width: 70%;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
 }
-.graph{
-    width: 65%;
-    height: 100%;
-    border: 2px solid blue;
+.graph {
+  width: 65%;
+  height: 100%;
+  border: 2px solid #162e5b;
 }
-.info{
-    width: 35%;
-    height: 100%;
-    border: 2px solid red;
-    background-color: #E7E7E7;
+.info {
+  width: 35%;
+  height: 100%;
+  border-width: 2px 2px 2px 0;
+  border-style: solid;
+  border-color: #162e5b;
+  background-color: #ffffff;
 }
