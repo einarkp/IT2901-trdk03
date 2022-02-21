@@ -21,6 +21,14 @@ class Accounting(models.Model):
     class Meta:
         unique_together = ('school', 'date')
 
+class Prediction(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    date = models.DateField()
+    amount = models.FloatField()
+    
+    class Meta:
+        unique_together = ('school', 'date')
+        
 class BudgetChange(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
     date = models.DateField()
