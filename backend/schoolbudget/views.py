@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
-from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PrognosisSerializer, SchoolSerializer
-from .models import Accounting, BudgetChange, Prognosis, School, Budget
+from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer
+from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Budget
 
 # Create your views here.
 
@@ -106,6 +106,24 @@ class AccountingView(viewsets.ViewSet):
                 school=correspondingSchool, date=date, amount=accounting["amount"])
         return Response("Probably added some accounting values")
 
+class PredicitonView(viewsets.ViewSet):
+    serializer_class = PredictionSerializer
+
+    # filters accountings by year if given
+    def get_queryset(self, school_pk):
+        year = self.request.query_params.get('year')
+
+        if year and year.isnumeric():
+            queryset = Prediction.objects.filter(
+                date__year=year, school=school_pk)
+        else:
+            queryset = Prediction.objects.filter(school=school_pk)
+        return queryset
+
+    def list(self, request, school_pk=None):
+        serializer = PredictionSerializer(
+            self.get_queryset(school_pk), many=True)
+        return Response(serializer.data)
 
 class BudgetChangeView(viewsets.ViewSet):
     serializer_class = BudgetChangeSerializer
