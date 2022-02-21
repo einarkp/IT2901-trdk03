@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.contrib import admin
 from django.urls import include, path
 from rest_framework_nested import routers
 from schoolbudget import views
@@ -28,8 +29,11 @@ router.register(r'schools', views.SchoolView, basename='schools')
 # /budgets/{pk}
 router.register(r'budgets', views.AllBudgetsView, basename='budgets')
 
+router.register(r'all-data', views.AllDataView, basename='all-data')
 
-
+# /all-data
+# /all-data?year=xxxx
+# /all-data?year=xxxx&school=xxxx
 schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
 
 # /schools/{responsibility}/budgets
@@ -37,8 +41,11 @@ schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
 schools_router.register(r'budgets', views.BudgetView, basename='school-budgets')
 
 # /schools/{responsibility}/accountings
+# /schools/{responsibility}/accountings?year=xxxx
 # /schools/{responsibility}/accountings/{accounting_pk}
 schools_router.register(r'accountings', views.AccountingView, basename='school-accountings')
+
+
 
 
 budgets_router = routers.NestedSimpleRouter(schools_router, r'budgets', lookup='budget')
@@ -56,4 +63,5 @@ urlpatterns = [
     path(r'', include(router.urls)),
     path(r'', include(schools_router.urls)),
     path(r'', include(budgets_router.urls)),
+    path('admin/', admin.site.urls),
 ]
