@@ -25,9 +25,12 @@ class Prediction(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     date = models.DateField()
     amount = models.FloatField()
+    lower_bound = models.FloatField()
+    upper_bound = models.FloatField()
+    coefficient = models.FloatField()
     
     class Meta:
-        unique_together = ('school', 'date')
+        unique_together = ('school', 'date', 'coefficient')
         
 class BudgetChange(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
