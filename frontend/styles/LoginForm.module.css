@@ -1,0 +1,22 @@
+
+.field{
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.buttons{
+    display: flex;
+    justify-content: space-between;
+}
+.button{
+    color: #162E5B;
+    font-weight: bold;
+    padding: 8px 20px;
+    margin: 20px 0px;
+    border: 1px solid #BBBBBB;
+    cursor: pointer;
+    width: 40%;
+}

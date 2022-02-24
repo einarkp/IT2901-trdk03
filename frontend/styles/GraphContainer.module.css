@@ -1,0 +1,21 @@
+.container {
+  min-width: 70%;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
+}
+.graph {
+  width: 65%;
+  height: 100%;
+  border: 2px solid #162e5b;
+  padding: 25px;
+
+}
+.info {
+  width: 35%;
+  height: 100%;
+  border-width: 2px 2px 2px 0;
+  border-style: solid;
+  border-color: #162e5b;
+  background-color: #ffffff;
+}
