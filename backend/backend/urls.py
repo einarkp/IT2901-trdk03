@@ -30,7 +30,7 @@ router.register(r'schools', views.SchoolView, basename='schools')
 router.register(r'budgets', views.AllBudgetsView, basename='budgets')
 
 # /all-data
-# /all-data?year=xxxx
+# /all-data?year=YYYY
 router.register(r'all-data', views.AllDataView, basename='all-data')
 
 schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
@@ -40,12 +40,12 @@ schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
 schools_router.register(r'budgets', views.BudgetView, basename='school-budgets')
 
 # /schools/{responsibility}/accountings
-# /schools/{responsibility}/accountings?year=xxxx
+# /schools/{responsibility}/accountings?year=YYYY
 # /schools/{responsibility}/accountings/{accounting_pk}
 schools_router.register(r'accountings', views.AccountingView, basename='school-accountings')
 
 # /schools/{responsibility}/predictions
-# /schools/{responsibility}/predicitons?year=xxxx
+# /schools/{responsibility}/predicitons?start=YYYY-MM-DD&end=YYYY-MM-DD
 schools_router.register(r'predictions', views.PredicitonView, basename='school-predictions')
 
 budgets_router = routers.NestedSimpleRouter(schools_router, r'budgets', lookup='budget')

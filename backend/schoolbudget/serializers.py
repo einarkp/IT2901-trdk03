@@ -30,7 +30,7 @@ class PredictionSerializer(serializers.ModelSerializer):
     }
     class Meta:
         model = Prediction
-        fields = ('school', 'date', 'amount')
+        fields = ('school', 'date', 'amount', 'lower_bound', 'upper_bound', 'coefficient')
 
 class BudgetChangeSerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {

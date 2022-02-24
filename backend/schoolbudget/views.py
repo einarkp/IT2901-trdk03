@@ -111,11 +111,13 @@ class PredicitonView(viewsets.ViewSet):
 
     # filters accountings by year if given
     def get_queryset(self, school_pk):
-        year = self.request.query_params.get('year')
-
-        if year and year.isnumeric():
+        start = self.request.query_params.get('start')
+        end = self.request.query_params.get('end')
+        coefficient = self.request.query_params.get('coefficient')
+        if start and end and coefficient:
+            print(start, end)
             queryset = Prediction.objects.filter(
-                date__year=year, school=school_pk)
+                date__range=(start, end), coefficient=coefficient, school=school_pk)
         else:
             queryset = Prediction.objects.filter(school=school_pk)
         return queryset
