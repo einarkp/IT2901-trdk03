@@ -5,6 +5,11 @@ from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
 from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer
 from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Budget
+from .arima import arima
+from datetime import date
+from dateutil.relativedelta import relativedelta
+
+
 
 # Create your views here.
 
@@ -126,6 +131,47 @@ class PredicitonView(viewsets.ViewSet):
         serializer = PredictionSerializer(
             self.get_queryset(school_pk), many=True)
         return Response(serializer.data)
+
+    def post(self, request, school_pk=None):
+        ## Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
+        ## 12 calculated values as predictions (this involved replacing existing predictions with date 
+        ## greater than latest accounting date).
+
+        ## Maybe a better idea would be to handle predictions on a
+        ## year to year basis? Easier to continually update?
+        ## NOTE: There are 100% issues with this implementation, just can't think of them now...
+        ## something to do with a lack of accounting data from users even though it's a new year
+        ## and they want to see 12 values. This implementation would not take that into account (maybe?).
+        ## A fix would be to do a date check for if it's december/january then just set the
+        ## dates for the predictions for the upcoming year (month 1,2,3,4,5,6,7,8,9,10,11,12)...
+
+        ## TODO: probably check if school_pk exists, throw error if not
+        allAccountingValues = []
+        accountings = Accounting.objects.filter(school = school_pk)
+        for accounting in accountings:
+            allAccountingValues.append(accounting.amount)
+        print(allAccountingValues)
+
+        arimaResults = arima(allAccountingValues, 1,0,6) ## TODO: replace with correct values
+        print(arimaResults)
+
+        ## Delete all existing prediction values with date from latest accounting date until now. (Right?)
+        latestAccountingDate = Accounting.objects.filter(school = school_pk).latest("date").date
+        # Prediction.objects.filter(date__range=[latestAccountingDate, date.today()]).delete()
+        Prediction.objects.filter(date__gte=latestAccountingDate).delete()
+
+
+        ## Add the new values from arima to prediction table, add year and month they belong to (date-object)
+        ## day is irrelevant, start with latestAccountingDate+1month, then increment month
+        safeStartDate = date(latestAccountingDate.year, latestAccountingDate.month, 12)
+        currentPredictionDate = safeStartDate + relativedelta(months=1)  # TODO: NEEDS TESTING...
+        correspondingSchool = School.objects.filter(
+                pk=school_pk).first()
+        for result in arimaResults:
+            Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=1, upper_bound=1, coefficient=1)
+            currentPredictionDate += relativedelta(months=1)
+
+        return Response("Probably created/updated some prediction values")
 
 class BudgetChangeView(viewsets.ViewSet):
     serializer_class = BudgetChangeSerializer
