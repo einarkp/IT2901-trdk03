@@ -5,15 +5,32 @@ export interface Budget {
   prediction: number | null; 
 }
 
-export type TotalBudgetData = {
-  school: number;
-  date: Date;
-  amount: number | null;
-  budget: number;
-  amountPrediction: number | null;
-  budgetPrediction: number | null;
+export type User = {
+  username: string,
+  schoolID: number,
+  token: string,
 }
-
 export type GraphDataProps = {
   data: Budget[],
 };
+
+export type GraphInfoProps = {
+  result: boolean,
+  bestMonth: string,
+  worstMonth: string,
+  maxMonthUse: string,
+};
+
+export type GraphProps = {
+  data: Budget[],
+  info: GraphInfoProps
+};
+
+export type AllDataApiResponse = {
+  Accounting: {school: number, date: string, amount: number}[],
+  Budget: {school: number, date: string, amount: number}[],
+  BudgetChange: {school: number, date: string, amount: number}[],
+  Prognosis: {school: number, date: string, amount: number}[],
+  Prediction: {school: number, date: string, amount: number}[]
+};
+
