@@ -3,11 +3,38 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  align-content: center;
+  padding: 10%;
 }
-.result {
-  border: 2px solid green;
-  width: 70%;
-  height: 15%;
-  margin: 10% auto;
+.resultPositive {
+  border: 2.5px solid green;
+  width: 100%;
+  min-height: 16%;
+  color: green;
+  padding-left: 10px;
+}
+.resultNegative {
+  border: 2.5px solid red;
+  width: 100%;
+  min-height: 16%;
+  color: red;
+  padding-left: 10px;
+}
+.resultText{
+  font-size: 2.3em;
+  margin-top: 3px;
+  font-weight: bold;
+}
+.infoWrap{
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+}
+.infoText{
+  display: flex;
+  flex-direction: column;
+}
+.infoNumbers{
+  display: flex;
+  flex-direction: column;
+  padding-left: 15px;
 }

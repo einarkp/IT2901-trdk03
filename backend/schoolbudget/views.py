@@ -9,8 +9,6 @@ from .arima import arima
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-
-
 # Create your views here.
 
 
@@ -128,10 +126,10 @@ class PredicitonView(viewsets.ViewSet):
         return queryset
 
     def list(self, request, school_pk=None):
-        serializer = PredictionSerializer(
-            self.get_queryset(school_pk), many=True)
+        serializer = PredictionSerializer(self.get_queryset(school_pk), many=True)
         return Response(serializer.data)
 
+        
     def post(self, request, school_pk=None):
         ## Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
         ## 12 calculated values as predictions (this involved replacing existing predictions with date 
@@ -145,20 +143,17 @@ class PredicitonView(viewsets.ViewSet):
         ## A fix would be to do a date check for if it's december/january then just set the
         ## dates for the predictions for the upcoming year (month 1,2,3,4,5,6,7,8,9,10,11,12)...
 
-        ## TODO: probably check if school_pk exists, throw error if not
         allAccountingValues = []
         accountings = Accounting.objects.filter(school = school_pk)
         for accounting in accountings:
             allAccountingValues.append(accounting.amount)
-        print(allAccountingValues)
 
-        arimaResults = arima(allAccountingValues, 1,0,6) ## TODO: replace with correct values
-        print(arimaResults)
+        arimaResults = arima(allAccountingValues, 12,0,1) 
 
-        ## Delete all existing prediction values with date from latest accounting date until now. (Right?)
+        ## Delete all existing prediction values with date from latest accounting date until now.
         latestAccountingDate = Accounting.objects.filter(school = school_pk).latest("date").date
         # Prediction.objects.filter(date__range=[latestAccountingDate, date.today()]).delete()
-        Prediction.objects.filter(date__gte=latestAccountingDate).delete()
+        Prediction.objects.filter(date__gte=latestAccountingDate, school = school_pk).delete()
 
 
         ## Add the new values from arima to prediction table, add year and month they belong to (date-object)
@@ -223,6 +218,8 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                     date__year=year, budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prognosis.objects.filter(
                     date__year=year, budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
+                {'queryset': Prediction.objects.filter(
+                    date__year=year, school=school_pk), 'serializer_class': PredictionSerializer},
             )
         elif school_pk and school_pk.isnumeric():
             querylist = (
@@ -234,6 +231,8 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                     budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prognosis.objects.filter(
                     budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
+                {'queryset': Prediction.objects.filter(
+                    school=school_pk), 'serializer_class': PredictionSerializer},
             )
         else:
             querylist = (
@@ -245,5 +244,7 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 ), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prognosis.objects.filter(
                 ), 'serializer_class': BudgetChangeSerializer},
+                {'queryset': Prediction.objects.filter(
+                ), 'serializer_class': PredictionSerializer},
             )
         return querylist
