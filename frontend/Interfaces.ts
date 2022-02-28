@@ -4,7 +4,18 @@ export interface Budget {
   amount: number | null;
   prediction: number | null; 
 }
-
+export interface LoginDetails {
+  user?: string,
+  token?: string,
+};
+export type TotalBudgetData = {
+  school: number;
+  date: Date;
+  amount: number | null;
+  budget: number;
+  amountPrediction: number | null;
+  budgetPrediction: number | null;
+}
 export type User = {
   username: string,
   schoolID: number,

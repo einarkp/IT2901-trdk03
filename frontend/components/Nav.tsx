@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'
 import { People } from "@navikt/ds-icons";
 import logoImg from '../images/logo.jpg'
 import styles from '../styles/Nav.module.css';
 
-function Header() {
+
+const Header: React.FC = () => {
+  
   return (
     <nav className={styles.nav}>
       <div className={styles.logo}>
@@ -13,7 +15,7 @@ function Header() {
       </div>
       <ul>
         <li>
-          <Link href='/totalOversikt'> Totaloversikt </Link>
+          <Link  href={{ pathname: '/totalOversikt', query: { id: '' } }}> Totaloversikt </Link>
         </li>
         <li>
           <Link href='/prognoser'> Prognoser </Link>
@@ -24,7 +26,7 @@ function Header() {
         <li>
           <Link href='/login'> 
           <People color="black" className={styles.peopleIcon}/>
-          </Link>
+          </Link>  
         </li>
         
       </ul>
