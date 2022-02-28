@@ -1,5 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { URL, PORT } from '../Constants';
+import { LoginDetails } from '../Interfaces';
+import { createHeader } from './Helpers';
+
+const getAdress = () =>  {
+  return URL+':'+PORT+'/';
+}
 
 
 /**
@@ -9,21 +15,16 @@ import { URL, PORT } from '../Constants';
  * @returns svar fra API-et i json format
  */
  export async function getData(endpoint: string = ''): Promise<any> {
-  const response = await axios.get(URL+':'+PORT+'/'+endpoint)
+  const response = await axios.get(getAdress()+endpoint)
   .then((data: AxiosResponse) => {
     return data;
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('There was an error!', error);
 });
   return response 
 }
 
-interface LoginDetails {
-  successful: boolean,
-  token: string | null,
-  schoolID: number | null,
-}
 /**
  * funskjon som bruker axios sin .post() til å 
  * sende en login forespørsel
@@ -31,11 +32,11 @@ interface LoginDetails {
  * @returns svar fra API-et i form av true false
  */
 export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
-  return await axios.post(URL+':'+PORT+'/login', dataBody)
+  return await axios.post(getAdress()+'login', dataBody, createHeader())
     .then((response: AxiosResponse) => {
       return response.data;
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('There was an error!', error);
       return {successful: false}
   });

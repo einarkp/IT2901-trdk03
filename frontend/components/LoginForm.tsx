@@ -1,7 +1,8 @@
 import React from 'react'
 import { Formik, Field, Form } from 'formik'
-import { TextField } from '@navikt/ds-react';
 import formStyles from '../styles/LoginForm.module.css'
+import { loginRequest } from '../utils/APIUtils';
+import { handleLogin } from '../utils/Helpers';
 
 export default function LoginForm() {
   return (
@@ -10,13 +11,17 @@ export default function LoginForm() {
                 username: '',
                 password: '',
             }}
-
             onSubmit={async (values) => {
-                await new Promise((resolve) => setTimeout(resolve, 500));
-                alert(JSON.stringify(values, null, 2));
+                await loginRequest(JSON.stringify(values, null, 2))
+                    .then((response) => {
+                        if(response){
+                            handleLogin(response)
+                        }else{
+                            alert("failed to logg in")
+                        }
+                    })
             }}
-        >
-            
+        > 
             <Form>
                 <Field name="email" type="email" placeholder="Epost" className={formStyles.field} />
                 <Field name="password" type="password" placeholder="Passord" className={formStyles.field} />
