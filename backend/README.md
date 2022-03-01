@@ -17,14 +17,17 @@ Install virtualenv:
 Create and activate a virtual environment:  
 `$ pipenv shell`
 
+
 Install requirements for development:  
 `$ pip install -r requirements.txt`
 
+
 Initialize database:
-`$ python manage.py migrate`
+`$ python manage.py migrate schoolbudget`
+
 
 Create an admin user:  
-`$ python manage.py createsuperuser --email <username>@stud.ntnu.no --username <username>`
+`$ python manage.py createsuperuser`
 
 ### Workflow
 
@@ -34,9 +37,10 @@ Activate enviroment:
 Run the server:
 `$ python manage.py runserver`
 
+
 If the models are changed, the database must be updated:
-`$ python manage.py makemigrations`
-`$ python manage.py migrate`
+`$ python manage.py makemigrations schoolbudget`
+`$ python manage.py migrate schoolbudget`
 
 https://docs.djangoproject.com/en/3.1/topics/migrations/
 
