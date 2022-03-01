@@ -18,7 +18,7 @@ Create and activate a virtual environment:
 `$ pipenv shell`
 
 Install requirements for development:  
-`$ pip install -r requirements_dev.txt`
+`$ pip install -r requirements.txt`
 
 Initialize database:
 `$ python manage.py migrate`
