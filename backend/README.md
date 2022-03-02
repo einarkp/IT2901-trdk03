@@ -23,6 +23,7 @@ Install requirements for development:
 
 
 Initialize database:
+`$ python manage.py makemigrations schoolbudget`
 `$ python manage.py migrate schoolbudget`
 
 
