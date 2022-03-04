@@ -16,7 +16,7 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 from pandas import DataFrame
 
-
+ 
 
 skoler = read_excel(r'backend\backend\tools\AllDataKnn.xlsx', header=0, index_col=0) 
 #X = skoler.drop("VedtattBudsjett", axis=1)

@@ -1,0 +1,12 @@
+.successMessage {
+    color: #4BB543;    /* <-- this green is disgusting */
+}
+
+.errorMessage {
+    color: red;    /* <-- this green is disgusting */
+}
+
+/* .submitButton {
+    background: "#3489eb";
+    color: "white";
+} */
