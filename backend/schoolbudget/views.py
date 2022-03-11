@@ -1,4 +1,5 @@
 import datetime
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -28,7 +29,7 @@ class SchoolView(viewsets.ViewSet):
 
     def post(self, request):
         # Needs validation etc etc.
-        for school in request.data['schools']:
+        for school in request.data:
             School.objects.create(
                 responsibility=school["responsibility"], name=school["name"])
         return Response("Probably added some schools")
@@ -64,10 +65,14 @@ class BudgetView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def post(self, request, school_pk=None):
-        # Needs validation etc etc.
-        for budget in request.data['budget']:
-            date = datetime.datetime.fromtimestamp(budget["dateMs"])
-            correspondingSchool = School.objects.filter(pk=budget["schoolId"]).first()
+        for budget in request.data:
+            correspondingSchool = School.objects.filter(
+                pk=budget["schoolId"]).first()
+            # Delete old entry if it exists, only one budget entry should exist per year
+            Budget.objects.filter(date__year = budget["year"], school=correspondingSchool).delete()
+            
+            # Add new value
+            date = datetime.date(budget["year"], budget["month"], 1)
             Budget.objects.create(
                 school=correspondingSchool, date=date, amount=budget["amount"])
         return Response("Probably added some budgets")
@@ -98,15 +103,21 @@ class AccountingView(viewsets.ViewSet):
         serializer = AccountingSerializer(accounting)
         return Response(serializer.data)
 
-    def post(self, request, school_pk=None):
-        # Needs validation etc etc.
-        for accounting in request.data['accounting']:
-            # As we dont have a day, this is just set to 1.
-            date = datetime.date(accounting["year"], accounting["month"], 1)
+    def post(self, request, school_pk=None):  # Add/update accounting entry in db
+        for accounting in request.data:
+            # Cannot add future accounting values
+            today = date.today()
+            if (today.year < accounting["year"] or (today.year == accounting["year"] and today.month < accounting["month"])):
+                return HttpResponse('Cannot add future accounting values', status=400)
             correspondingSchool = School.objects.filter(
                 pk=accounting["schoolId"]).first()
+            # Delete old entry if it exists, month&year combo is unique, should only ever exist one entry
+            Accounting.objects.filter(date__month = accounting["month"], date__year = accounting["year"], school=correspondingSchool).delete()
+            
+            # Add new value
+            date2add = datetime.date(accounting["year"], accounting["month"], 1)
             Accounting.objects.create(
-                school=correspondingSchool, date=date, amount=accounting["amount"])
+                school=correspondingSchool, date=date2add, amount=accounting["amount"])
         return Response("Probably added some accounting values")
 
 class PredicitonView(viewsets.ViewSet):
@@ -152,7 +163,6 @@ class PredicitonView(viewsets.ViewSet):
 
         ## Delete all existing prediction values with date from latest accounting date until now.
         latestAccountingDate = Accounting.objects.filter(school = school_pk).latest("date").date
-        # Prediction.objects.filter(date__range=[latestAccountingDate, date.today()]).delete()
         Prediction.objects.filter(date__gte=latestAccountingDate, school = school_pk).delete()
 
 

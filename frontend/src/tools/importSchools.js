@@ -3,9 +3,7 @@ const readline = require("readline")
 const axios = require("axios")
 
 async function insertToDb(schools) {
-  await axios.post('http://127.0.0.1:8000/schools/', {
-    schools
-  })
+  await axios.post('http://127.0.0.1:8000/schools/', schools)
     .then(function (response) {
       console.log(response);
     })
