@@ -23,7 +23,7 @@ export const BudgetInfo = ({info}:any) => {
       <div className={styles.infoWrap}>
         <div className={styles.infoTexts}>
           <span>Beste måned:</span> <br />
-          <span>Værste måned:</span> <br />
+          <span>Verste måned:</span> <br />
           <span>Max månedsbruk:</span> <br />
         </div>
         <div className={styles.infoNumbers}>

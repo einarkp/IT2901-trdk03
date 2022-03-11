@@ -27,7 +27,8 @@ export default function TotalOversikt() {
     // Values needed for right side info panel:
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
-    for (let index = 0; index < 12; index++) {
+    let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length  
+    for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
       currentCumulativeValue += currentAmount
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]

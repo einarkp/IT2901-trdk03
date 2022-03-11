@@ -6,9 +6,7 @@ const axios = require("axios")
 // UPDATE: this is because Accounting2018_21Csv.csv contains school ID's not present in AllSchoolsCsv.csv, e.g. 41820 Lianvatnet...
 
 async function insertToDb(accounting) {
-    await axios.post('http://127.0.0.1:8000/schools/' + accounting[0].schoolId + '/accountings/', {
-        accounting
-    })
+    await axios.post('http://127.0.0.1:8000/schools/' + accounting[0].schoolId + '/accountings/', accounting)
         .then(function (response) {
             console.log(response);
         })
@@ -40,9 +38,9 @@ async function addAccountings() {
         let accounting = [
             {
                 schoolId: schoolId,
-                year: year,
+                amount: amount,
                 month: month,
-                amount: amount
+                year: year
             }
         ]
         await insertToDb(accounting)
