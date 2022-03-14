@@ -3,6 +3,8 @@ export interface Budget {
   date: Date;
   amount: number | null;
   prediction: number | null; 
+  uncertainty: number[] | null;
+  cumulativeUncertainty: number[] | null;
 }
 export interface LoginDetails {
   user?: string,

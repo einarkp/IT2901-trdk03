@@ -15,6 +15,6 @@ a {
 * {
   box-sizing: border-box;
 }
-.legend-item-2, .legend-item-3{
+.legend-item-2, .legend-item-3, .legend-item-5, .legend-item-6{
   display: none !important; 
 }

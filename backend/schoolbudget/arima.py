@@ -1,6 +1,6 @@
 from concurrent.futures.process import _system_limits_checked
 from operator import index
-from turtle import color
+#from turtle import color
 import pandas as pd
 from pandas import read_csv, read_excel
 import numpy as np
@@ -44,34 +44,18 @@ from sklearn.metrics import mean_squared_error
 
 
 
-def arima(values, ar, i, ma):
+def arima(values, ar, i, ma, conf):
     model = ARIMA(values, order=(ar, i, ma),)  
     print(type(model))
     model_fit = model.fit()
     pred = model_fit.get_forecast(steps=12)
     forecast = pred.predicted_mean
 
-
 # summarize confidence intervals
-    # intervals = [0.2, 0.1, 0.01, 0.05]
-    
-    # ci = 0
-    # a=0.05
-    # ci = pred.conf_int(a)
-    # print(ci)
-    # ci1 = ci[0,0]
-    # ci2 = ci[0,1]
-    # forecast = [int(x) for x in forecast]  # cast to int values
-    # print(forecast)
-    # plt.plot(forecast, color="red")
-    # plt.plot(test, color = "green")
-    # for x in range(12):
-    #     plt.fill_between([x-0.5,x+0.5], ci[x,0], ci[x,1] )
-    # plt.show()
+    ci = 0
+    ci = pred.conf_int(conf)
 
-
-    return forecast
-
+    return forecast, ci
 
 # arima_pred = arima(train, 12, 0, 1)
 
