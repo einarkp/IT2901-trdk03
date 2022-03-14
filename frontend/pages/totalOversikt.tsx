@@ -24,6 +24,8 @@ export default function TotalOversikt() {
     const concatinatedArr = accountingArr.concat(predictionArr)
     const firstPredictionObject = concatinatedArr.find((element: { hasOwnProperty: (arg0: string) => any; }) => element.hasOwnProperty("isPrediction"))
     let currentCumulativeValue = 0
+    let currentCumilitaveLowerBound = 0
+    let currentCumilitaveUpperBound = 0
     // Values needed for right side info panel:
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
@@ -31,6 +33,21 @@ export default function TotalOversikt() {
     for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
       currentCumulativeValue += currentAmount
+
+      const currentLowerBound = Math.floor(concatinatedArr[index].lower_bound)
+      const currentUpperBound = Math.floor(concatinatedArr[index].upper_bound)
+      if(!isNaN(currentLowerBound) && !isNaN(currentUpperBound)){
+        if(currentCumilitaveLowerBound === 0 && currentCumilitaveUpperBound === 0){
+          currentCumilitaveLowerBound = currentCumulativeValue
+          currentCumilitaveUpperBound = currentCumulativeValue
+        } else{
+          currentCumilitaveLowerBound += currentLowerBound
+          currentCumilitaveUpperBound += currentUpperBound
+
+        }
+      }
+
+      
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -41,8 +58,11 @@ export default function TotalOversikt() {
         cumulativeAccounting: !isPrediction ? currentCumulativeValue : firstPredictionObject.amount === currentAmount ? currentCumulativeValue : null,
         accountingPrediction: isPrediction ? currentAmount : null,
         cumulativeAccountingPrediction: isPrediction ? currentCumulativeValue : null,
-        budget: budget
+        budget: budget,
+        uncertainty: [ isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null ],
+        cumulativeUncertainty: [ isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null ]
       }
+      console.log(objectToAdd)
       combinedDataArr.push(objectToAdd)
     }
 
@@ -123,57 +143,90 @@ const dummyDataApiResponse = {
     {
       "school": 31040,
       "date": "2022-03-12",
-      "amount": 2988368.740213417
+      "amount": 2988368.740213417,
+      "lower_bound": 2488368.740213417,
+      "upper_bound": 3488368.740213417,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-04-12",
-      "amount": 2645581.273558945
+      "amount": 2645581.273558945,
+      "lower_bound": 2645581.273558945 - 500000,
+      "upper_bound": 2645581.273558945 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-05-12",
-      "amount": 1824685.4086115295
+      "amount": 1824685.4086115295,
+      "lower_bound": 1824685.4086115295 - 500000,
+      "upper_bound": 1824685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-06-12",
-      "amount": 1360669.8196556044
+      "amount": 1360669.8196556044,
+      "lower_bound": 1324685.4086115295 - 500000,
+      "upper_bound": 1324685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-07-12",
-      "amount": 2654503.7947538886
+      "amount": 2654503.7947538886,
+      "lower_bound": 2624685.4086115295 - 500000,
+      "upper_bound": 2624685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-08-12",
-      "amount": 3274943.7197576854
+      "amount": 3274943.7197576854,
+      "lower_bound": 3224685.4086115295 - 500000,
+      "upper_bound": 3224685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-09-12",
-      "amount": 3340776.920716508
+      "amount": 3340776.920716508,
+      "lower_bound": 3324685.4086115295 - 500000,
+      "upper_bound": 3324685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-10-12",
-      "amount": 2968126.4624555605
+      "amount": 2968126.4624555605,
+      "lower_bound": 2924685.4086115295 - 500000,
+      "upper_bound": 2924685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-11-12",
-      "amount": 1540675.787442268
+      "amount": 1540675.787442268,
+      "lower_bound": 1524685.4086115295 - 500000,
+      "upper_bound": 1524685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2022-12-12",
-      "amount": 2038780.100294605
+      "amount": 2038780.100294605,
+      "lower_bound": 2024685.4086115295 - 500000,
+      "upper_bound": 2024685.4086115295 + 500000,
+      "coefficient": 0.05
     },
     {
       "school": 31040,
       "date": "2023-01-12",
-      "amount": 2038780.100294605
+      "amount": 2038780.100294605,
+      "lower_bound": 2024685.4086115295 - 500000,
+      "upper_bound": 2024685.4086115295 + 500000,
+      "coefficient": 0.05
     }
   ],
 }

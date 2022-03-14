@@ -159,12 +159,15 @@ class PredicitonView(viewsets.ViewSet):
         for accounting in accountings:
             allAccountingValues.append(accounting.amount)
 
-        arimaResults = arima(allAccountingValues, 12,0,1) 
+        coefficient = self.request.query_params.get('coefficient')
+        if not coefficient:
+            coefficient = 0.05
+            
+        arimaResults, confResults = arima(allAccountingValues, 12,0,1, coefficient) # should replace 0.05 with "coefficient 
 
         ## Delete all existing prediction values with date from latest accounting date until now.
         latestAccountingDate = Accounting.objects.filter(school = school_pk).latest("date").date
         Prediction.objects.filter(date__gte=latestAccountingDate, school = school_pk).delete()
-
 
         ## Add the new values from arima to prediction table, add year and month they belong to (date-object)
         ## day is irrelevant, start with latestAccountingDate+1month, then increment month
@@ -172,8 +175,14 @@ class PredicitonView(viewsets.ViewSet):
         currentPredictionDate = safeStartDate + relativedelta(months=1)  # TODO: NEEDS TESTING...
         correspondingSchool = School.objects.filter(
                 pk=school_pk).first()
+                
+        sum = 0
         for result in arimaResults:
-            Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=1, upper_bound=1, coefficient=1)
+            c1 = confResults[sum,0]
+            c2 = confResults[sum,1]
+            sum += 1
+            
+            Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=c1, upper_bound=c2, coefficient=coefficient)
             currentPredictionDate += relativedelta(months=1)
 
         return Response("Probably created/updated some prediction values")
