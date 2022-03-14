@@ -13,7 +13,7 @@ async function insertToDb(budget) {
 }
 
 async function addBudgets() {
-    var filePath = "frontend/src/tools/Budgets_2021.csv";
+    var filePath = "frontend/src/tools/Budgets2018_2021.csv";
 
     const fileStream = fs.createReadStream(filePath);
 
@@ -23,25 +23,19 @@ async function addBudgets() {
     });
 
     for await (const line of rl) {
-        if (line.includes("Versjon;Ansvar;Beløp;Oppdatert")) continue  // skip first line as this includes column names
-        const data = line.split(";")  // Budgets_2021.csv is colon separated'
+        if (line.includes("Dato;Ansvar;Beløp;Oppdatert")) continue  // skip first line as this includes column names
+        const data = line.split(";")  // Budgets2018_2021.csv is colon separated
         const schoolId = Number(data[1])
         const amount = Number(data[2])
 
-
-        const dateIndexString = data[3].split(".")
-        const toDate = new Date(dateIndexString[2], dateIndexString[1] - 1, dateIndexString[0])
-        console.log(toDate.getMonth())
-        const month = toDate.getMonth() + 1
-        const year = toDate.getFullYear()
-
-        // const js_timestamp = toDate.getTime() / 1000;  // send date as ms, then backend --> python_date = datetime.datetime.fromtimestamp(js_timestamp)
+        const dateIndexString = data[0].split(".")
+        const year = Number(dateIndexString[2])
 
         let budget = [
             {
                 schoolId: schoolId,
                 amount: amount,
-                month: month,
+                month: 1,  // Month doesnt matter for budgets, it is year unique
                 year: year
             }
         ]

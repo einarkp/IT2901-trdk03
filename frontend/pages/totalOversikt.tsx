@@ -8,6 +8,8 @@ export default function TotalOversikt() {
 
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
+  // const yearSelectorData =  {allYears: [2018,2019,2020,2021,2022], currentYear: 2021, newYear: null}
+  const [yearSelectorData, setYearSelectorData] = useState({allYears: [2018,2019,2020,2021,2022], currentYear: 2021, newYear: null})
 
   function combineAllDataApiResponse(allData: any) {
     // Combine the response arrays from backend into a format that fits Recharts.
@@ -105,7 +107,7 @@ export default function TotalOversikt() {
   }, []);
 
   return (<>
-    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} />}
+    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} yearSelectorData={yearSelectorData} />}
   </>
   )
 }

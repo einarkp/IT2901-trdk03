@@ -46,7 +46,7 @@ export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
  * @param type the type of data being added/updated, e.g. "accountings", "budgets", needs to match the Django URLs
  * @param data array of object/-s containing the data being added, consists at least schoolID, month, year and amount
  */
- export async function UpdateDatabase(type:string, data:any): Promise<LoginDetails> {
+ export async function UpdateDatabase(type:string, data:any): Promise<any> {
   return await axios.post(getAdress()+"schools/"+data[0].schoolId+"/"+type+"/", data, createHeader())
     .then((response: AxiosResponse) => {
       return response.data;
@@ -61,7 +61,7 @@ export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
  * Function used to create new predictions for specified school
  * @param schoolId the schoolId of the school to create new predictions for
  */
- export async function CreatePredictions(schoolId: number): Promise<LoginDetails> {
+ export async function CreatePredictions(schoolId: number): Promise<any> {
   return await axios.post(getAdress()+"schools/"+schoolId+"/predictions/", createHeader())
     .then((response: AxiosResponse) => {
       return response.data;
