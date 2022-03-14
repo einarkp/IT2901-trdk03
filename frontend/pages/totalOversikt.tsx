@@ -5,11 +5,12 @@ import { getData } from '../utils/APIUtils';
 import { longMonthFormatter } from "../utils/DateFormaters"
 
 export default function TotalOversikt() {
-
+  
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
-  // const yearSelectorData =  {allYears: [2018,2019,2020,2021,2022], currentYear: 2021, newYear: null}
-  const [yearSelectorData, setYearSelectorData] = useState({allYears: [2018,2019,2020,2021,2022], currentYear: 2021, newYear: null})
+  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [2018, 2019, 2020, 2021, 2022], currentYear: 2021 }) // TODO: replace hardcoded allYears with api data
+  const [currentYear, setCurrentYear] = useState(2021)
+
 
   function combineAllDataApiResponse(allData: any) {
     // Combine the response arrays from backend into a format that fits Recharts.
@@ -17,7 +18,7 @@ export default function TotalOversikt() {
     const combinedDataArr = []
     const accountingArr = allData.Accounting
     const predictionArr = allData.Prediction
-    const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount :  null
+    const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount : null
     predictionArr.forEach((element: { amount: number; isPrediction: boolean; }) => {  // Need some way of differentiating prediction values
       element.amount = Math.floor(element.amount)
       element.isPrediction = true
@@ -25,31 +26,30 @@ export default function TotalOversikt() {
 
     const concatinatedArr = accountingArr.concat(predictionArr)
     const firstPredictionObject = concatinatedArr.find((element: { hasOwnProperty: (arg0: string) => any; }) => element.hasOwnProperty("isPrediction"))
+    // Values needed for uncertainty area 
     let currentCumulativeValue = 0
     let currentCumilitaveLowerBound = 0
     let currentCumilitaveUpperBound = 0
     // Values needed for right side info panel:
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
-    let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length  
+    let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length
     for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
       currentCumulativeValue += currentAmount
 
       const currentLowerBound = Math.floor(concatinatedArr[index].lower_bound)
       const currentUpperBound = Math.floor(concatinatedArr[index].upper_bound)
-      if(!isNaN(currentLowerBound) && !isNaN(currentUpperBound)){
-        if(currentCumilitaveLowerBound === 0 && currentCumilitaveUpperBound === 0){
+      if (!isNaN(currentLowerBound) && !isNaN(currentUpperBound)) {
+        if (currentCumilitaveLowerBound === 0 && currentCumilitaveUpperBound === 0) {
           currentCumilitaveLowerBound = currentCumulativeValue
           currentCumilitaveUpperBound = currentCumulativeValue
-        } else{
+        } else {
           currentCumilitaveLowerBound += currentLowerBound
           currentCumilitaveUpperBound += currentUpperBound
-
         }
       }
 
-      
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -61,8 +61,8 @@ export default function TotalOversikt() {
         accountingPrediction: isPrediction ? currentAmount : null,
         cumulativeAccountingPrediction: isPrediction ? currentCumulativeValue : null,
         budget: budget,
-        uncertainty: [ isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null ],
-        cumulativeUncertainty: [ isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null ]
+        uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
+        cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
       console.log(objectToAdd)
       combinedDataArr.push(objectToAdd)
@@ -78,8 +78,6 @@ export default function TotalOversikt() {
       maxMonthUse: "..",
     }
     setInfoData(sidePanelInfo)
-
-
     return combinedDataArr
   }
 
@@ -90,9 +88,9 @@ export default function TotalOversikt() {
       setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
     }
     else {
-      getData("all-data?year=" + params.year + "&school=" + params.id)
+      getData("all-data?year=" + currentYear + "&school=" + params.id)
         .then((response) => {
-          const AllDataApiResponse:AllDataApiResponse = response.data
+          const AllDataApiResponse: AllDataApiResponse = response.data
           if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
             // TODO: could not find data for specified school id, show some kind of feedback.
             console.log("Found no school with id " + params.id)
@@ -104,10 +102,10 @@ export default function TotalOversikt() {
         })
         .catch((e) => { console.log(e) });
     }
-  }, []);
+  }, [currentYear]);
 
   return (<>
-    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} yearSelectorData={yearSelectorData} />}
+    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} />}
   </>
   )
 }

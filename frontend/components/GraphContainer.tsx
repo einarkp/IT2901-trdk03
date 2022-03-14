@@ -6,7 +6,7 @@ import { BudgetInfo } from './BudgetInfo'
 import YearSelector from './YearSelector'
 
 
-export default function GraphContainer({ data, info, yearSelectorData}: GraphProps) {
+export default function GraphContainer({ data, info, setCurrentYear, yearSelectorData}: GraphProps) {
   return (
     <div className={ContainerStyle.container}>
       <div className={ContainerStyle.graph}>
@@ -16,7 +16,7 @@ export default function GraphContainer({ data, info, yearSelectorData}: GraphPro
         <BudgetInfo info={info} />
       </div>
       {/* Place YearSelector under graph... */}
-      <YearSelector data={yearSelectorData} />
+      <YearSelector yearSelector={setCurrentYear} yearSelectorData={yearSelectorData} />
     </div>
   )
 }

@@ -3,17 +3,23 @@ import { IconContext } from 'react-icons';
 import { BsArrowLeftSquare, BsArrowRightSquare } from 'react-icons/bs';
 import { YearSelectorData } from '../Interfaces';
 
-export default function YearSelector(yearSelectorData: any) {
-  const [currentYear, setCurrentYear]: any[] = useState(yearSelectorData.data.currentYear)
+export default function YearSelector(props: {yearSelector: any, yearSelectorData: YearSelectorData} ) {
+  const [displayedYear, setDisplayedYear]: any[] = useState(props.yearSelectorData.currentYear)
+
 
   function handleIncrement() {  // Currently skips years with no data, think this is the right way to go, but should show something about missing data in UI
-    if (currentYear != yearSelectorData.data.allYears[yearSelectorData.data.allYears.length - 1]) {
-      setCurrentYear(yearSelectorData.data.allYears[yearSelectorData.data.allYears.indexOf(currentYear) + 1])
+    // Also, this aint it chief, find a better way to handle local displayed year value vs the actual year value from TotaltOversikt.tsx (prop value)
+    // think there's a risk of the year shown in the graph data differs from the year displayed in the selector. 
+    // essentially only line 15 or 16 should exist.
+    if (displayedYear != props.yearSelectorData.allYears[ props.yearSelectorData.allYears.length - 1]) {
+      props.yearSelector( props.yearSelectorData.allYears[ props.yearSelectorData.allYears.indexOf(displayedYear) + 1])
+      setDisplayedYear(props.yearSelectorData.allYears[ props.yearSelectorData.allYears.indexOf(displayedYear) + 1])
     }
   }
   function handleDecrement() {
-    if (currentYear != yearSelectorData.data.allYears[0]) {
-      setCurrentYear(yearSelectorData.data.allYears[yearSelectorData.data.allYears.indexOf(currentYear) - 1])
+    if (displayedYear != props.yearSelectorData.allYears[0]) {
+      props.yearSelector(props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) - 1])
+      setDisplayedYear(props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) - 1])
     }
   }
 
@@ -44,9 +50,8 @@ export default function YearSelector(yearSelectorData: any) {
   return (
     <div >
       <RightArrow /> 
-      {currentYear}
+      {displayedYear}
       <LeftArrow />
-
     </div>
   )
 }
