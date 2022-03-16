@@ -44,7 +44,14 @@
     width: 28px;
     height: 28px;
 }
-
 .peopleIcon:hover {
     cursor: pointer;
+}
+.dropdown{
+    display: flex;
+    flex-direction: column;
+}
+.dropdown a{
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
