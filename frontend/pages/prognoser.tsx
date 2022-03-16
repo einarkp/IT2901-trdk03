@@ -3,6 +3,8 @@ import GraphContainer from '../components/GraphContainer'
 
 export default function Prognoser() {
   return (
-    <GraphContainer />
+    <div>
+      
+    </div>
   )
 }

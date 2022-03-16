@@ -62,21 +62,26 @@ export default function TotalOversikt() {
         uncertainty: [ isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null ],
         cumulativeUncertainty: [ isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null ]
       }
-      console.log(objectToAdd)
+      
       combinedDataArr.push(objectToAdd)
     }
 
     // Set values in right side info panel:
     const highestAccountingMonth = longMonthFormatter(new Date(highestValueObject.date!)).split(" ")[0]
     const LowestAccountingMonth = longMonthFormatter(new Date(lowestValueObject.date!)).split(" ")[0]
+    const relativePercentage = Math.floor(( budget / currentCumulativeValue ) * 100)
+    //Checks if it is within fail margin
+    const withinMargin = (currentCumilitaveUpperBound-((currentCumilitaveUpperBound-currentCumulativeValue)/2)) > budget
     const sidePanelInfo: GraphInfoProps = {
       result: budget > currentCumulativeValue,
+      withinMargin: withinMargin,
+      resultPercent: relativePercentage,
       bestMonth: lowestValueObject.amount + " (" + LowestAccountingMonth + ")",
       worstMonth: highestValueObject.amount + " (" + highestAccountingMonth + ")",
       maxMonthUse: "..",
     }
     setInfoData(sidePanelInfo)
-
+    console.log(sidePanelInfo)
 
     return combinedDataArr
   }

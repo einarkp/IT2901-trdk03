@@ -29,6 +29,8 @@ export type GraphDataProps = {
 
 export type GraphInfoProps = {
   result: boolean,
+  resultPercent: number | null,
+  withinMargin: boolean | null,
   bestMonth: string,
   worstMonth: string,
   maxMonthUse: string,
