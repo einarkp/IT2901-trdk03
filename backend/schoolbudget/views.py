@@ -9,6 +9,7 @@ from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Bud
 from .arima import arima
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -267,3 +268,18 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 ), 'serializer_class': PredictionSerializer},
             )
         return querylist
+
+def getAvailableYears(request):
+    # Returns a list of years that has accounting/prediction data for given school
+    schoolId = request.GET.get('schoolid')
+    correspondingSchool = School.objects.filter(
+                pk=schoolId).first()
+    # dates = Accounting.objects.filter(school=correspondingSchool)\
+    #                    .annotate(year=ExtractYear('date'))\
+    #                    .values('year').distinct()
+    accoutingDates = Accounting.objects.filter(school=correspondingSchool).dates("date", "year")
+    accoutingYears = [date.year for date in accoutingDates]
+    predictionDates = Prediction.objects.filter(school=correspondingSchool).dates("date", "year")
+    predictionYears = [date.year for date in predictionDates]
+    allYears = sorted(list(set(accoutingYears) | set(predictionYears)))
+    return JsonResponse(allYears, safe=False)

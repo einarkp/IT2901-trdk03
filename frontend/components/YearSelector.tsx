@@ -1,35 +1,53 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconContext } from 'react-icons';
 import { BsArrowLeftSquare, BsArrowRightSquare } from 'react-icons/bs';
 import { YearSelectorData } from '../Interfaces';
+import YearSelectorStyle from '../styles/YearSelector.module.css'
 
-export default function YearSelector(props: {yearSelector: any, yearSelectorData: YearSelectorData} ) {
+
+export default function YearSelector(props: { yearSelector: any, yearSelectorData: YearSelectorData }) {
   const [displayedYear, setDisplayedYear]: any[] = useState(props.yearSelectorData.currentYear)
+  const [rightArrowDisabled, setRightArrowDisabled] = useState(false)
+  const [leftArrowDisabled, setLeftArrowDisabled] = useState(false)
 
 
-  function handleIncrement() {  // Currently skips years with no data, think this is the right way to go, but should show something about missing data in UI
-    // Also, this aint it chief, find a better way to handle local displayed year value vs the actual year value from TotaltOversikt.tsx (prop value)
-    // think there's a risk of the year shown in the graph data differs from the year displayed in the selector. 
-    // essentially only line 15 or 16 should exist.
-    if (displayedYear != props.yearSelectorData.allYears[ props.yearSelectorData.allYears.length - 1]) {
-      props.yearSelector( props.yearSelectorData.allYears[ props.yearSelectorData.allYears.indexOf(displayedYear) + 1])
-      setDisplayedYear(props.yearSelectorData.allYears[ props.yearSelectorData.allYears.indexOf(displayedYear) + 1])
+  useEffect(() => {
+    let lastYearValue = props.yearSelectorData.allYears[props.yearSelectorData.allYears.length - 1]
+    let firstYearValue = props.yearSelectorData.allYears[0]
+    if (lastYearValue == displayedYear) {
+      setRightArrowDisabled(true)
     }
+    if (firstYearValue == displayedYear) {
+      setLeftArrowDisabled(true)
+    }
+  }, [displayedYear])
+
+  function handleIncrement() { 
+    let lastYearValue = props.yearSelectorData.allYears[props.yearSelectorData.allYears.length - 1]
+    if (displayedYear != lastYearValue) {
+      let nextYear = props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) + 1]
+      props.yearSelector(nextYear)
+      setDisplayedYear(nextYear)
+    }
+    setLeftArrowDisabled(false)
+
   }
   function handleDecrement() {
     if (displayedYear != props.yearSelectorData.allYears[0]) {
-      props.yearSelector(props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) - 1])
-      setDisplayedYear(props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) - 1])
+      let lastYear = props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) - 1]
+      props.yearSelector(lastYear)
+      setDisplayedYear(lastYear)
     }
+    setRightArrowDisabled(false)
   }
 
   const RightArrow = () => {
     return (
       <IconContext.Provider
-        value={{ color: 'black', size: '40px' }}
+        value={{ color: rightArrowDisabled ? 'grey' : "black", size: '40px' }}
       >
         <div>
-          <BsArrowRightSquare onClick={handleIncrement} />
+          <BsArrowRightSquare onClick={handleIncrement} style={{ cursor: rightArrowDisabled ? "" : "pointer" }} />
         </div>
       </IconContext.Provider>
     );
@@ -38,20 +56,21 @@ export default function YearSelector(props: {yearSelector: any, yearSelectorData
   const LeftArrow = () => {
     return (
       <IconContext.Provider
-        value={{ color: 'black', size: '40px' }}
+        value={{ color: leftArrowDisabled ? 'grey' : "black", size: '40px' }}
       >
         <div>
-          <BsArrowLeftSquare onClick={handleDecrement} />
+          <BsArrowLeftSquare onClick={handleDecrement} style={{ cursor: leftArrowDisabled ? "" : "pointer" }} />
         </div>
       </IconContext.Provider>
     );
   }
 
   return (
-    <div >
-      <RightArrow /> 
-      {displayedYear}
+    <div className={YearSelectorStyle.yearSelector} >
       <LeftArrow />
+      {displayedYear}
+      <RightArrow />
+
     </div>
   )
 }

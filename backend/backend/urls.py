@@ -64,4 +64,5 @@ urlpatterns = [
     path(r'', include(schools_router.urls)),
     path(r'', include(budgets_router.urls)),
     path('admin/', admin.site.urls),
+    path('getAvailableYears/', views.getAvailableYears)
 ]

@@ -6,7 +6,7 @@ import { BudgetInfo } from './BudgetInfo'
 import YearSelector from './YearSelector'
 
 
-export default function GraphContainer({ data, info, setCurrentYear, yearSelectorData}: GraphProps) {
+export default function GraphContainer({ data, info, setCurrentYear, yearSelectorData }: GraphProps) {
   return (
     <div className={ContainerStyle.container}>
       <div className={ContainerStyle.graph}>

@@ -5,11 +5,11 @@ import { getData } from '../utils/APIUtils';
 import { longMonthFormatter } from "../utils/DateFormaters"
 
 export default function TotalOversikt() {
-  
+
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
-  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [2018, 2019, 2020, 2021, 2022], currentYear: 2021 }) // TODO: replace hardcoded allYears with api data
-  const [currentYear, setCurrentYear] = useState(2021)
+  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear() })
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
 
 
   function combineAllDataApiResponse(allData: any) {
@@ -64,7 +64,6 @@ export default function TotalOversikt() {
         uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
         cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
-      console.log(objectToAdd)
       combinedDataArr.push(objectToAdd)
     }
 
@@ -84,6 +83,16 @@ export default function TotalOversikt() {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
+    // Get data for yearselector
+    if (yearSelectorData.allYears.includes(-1)) {
+      getData("getAvailableYears/?schoolid=" + params.id)
+        .then((response) => {
+          const availableYears = response.data
+          setYearSelectorData({ allYears: availableYears, currentYear: new Date().getFullYear() })
+          setCurrentYear(new Date().getFullYear())
+        })
+        .catch((e) => { console.log(e) });
+    }
     if (params.id === "example") {
       setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
     }
