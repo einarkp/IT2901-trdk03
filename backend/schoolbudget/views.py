@@ -274,9 +274,6 @@ def getAvailableYears(request):
     schoolId = request.GET.get('schoolid')
     correspondingSchool = School.objects.filter(
                 pk=schoolId).first()
-    # dates = Accounting.objects.filter(school=correspondingSchool)\
-    #                    .annotate(year=ExtractYear('date'))\
-    #                    .values('year').distinct()
     accoutingDates = Accounting.objects.filter(school=correspondingSchool).dates("date", "year")
     accoutingYears = [date.year for date in accoutingDates]
     predictionDates = Prediction.objects.filter(school=correspondingSchool).dates("date", "year")

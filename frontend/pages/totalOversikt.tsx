@@ -8,7 +8,7 @@ export default function TotalOversikt() {
 
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
-  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear() })
+  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear()-1 })
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
 
 
@@ -88,8 +88,8 @@ export default function TotalOversikt() {
       getData("getAvailableYears/?schoolid=" + params.id)
         .then((response) => {
           const availableYears = response.data
-          setYearSelectorData({ allYears: availableYears, currentYear: new Date().getFullYear() })
-          setCurrentYear(new Date().getFullYear())
+          setYearSelectorData({ allYears: availableYears, currentYear: new Date().getFullYear()-1 })
+          setCurrentYear(new Date().getFullYear()-1)
         })
         .catch((e) => { console.log(e) });
     }
