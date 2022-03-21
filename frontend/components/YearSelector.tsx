@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { IconContext } from 'react-icons';
-import { BsArrowLeftSquare, BsArrowRightSquare } from 'react-icons/bs';
+import { BsArrowRightCircle, BsArrowLeftCircle } from 'react-icons/bs';
 import { YearSelectorData } from '../Interfaces';
 import YearSelectorStyle from '../styles/YearSelector.module.css'
 
+
+// Could definitely pick better arrows: https://react-icons.github.io/react-icons/search?q=arrow
 
 export default function YearSelector(props: { yearSelector: any, yearSelectorData: YearSelectorData }) {
   const [displayedYear, setDisplayedYear]: any[] = useState(props.yearSelectorData.currentYear)
@@ -22,7 +24,7 @@ export default function YearSelector(props: { yearSelector: any, yearSelectorDat
     }
   }, [displayedYear])
 
-  function handleIncrement() { 
+  function handleIncrement() {
     let lastYearValue = props.yearSelectorData.allYears[props.yearSelectorData.allYears.length - 1]
     if (displayedYear != lastYearValue) {
       let nextYear = props.yearSelectorData.allYears[props.yearSelectorData.allYears.indexOf(displayedYear) + 1]
@@ -47,7 +49,9 @@ export default function YearSelector(props: { yearSelector: any, yearSelectorDat
         value={{ color: rightArrowDisabled ? 'grey' : "black", size: '40px' }}
       >
         <div>
-          <BsArrowRightSquare onClick={handleIncrement} style={{ cursor: rightArrowDisabled ? "" : "pointer" }} />
+          <BsArrowRightCircle onClick={handleIncrement}
+            style={{ cursor: rightArrowDisabled ? "" : "pointer" }}
+          />
         </div>
       </IconContext.Provider>
     );
@@ -59,7 +63,8 @@ export default function YearSelector(props: { yearSelector: any, yearSelectorDat
         value={{ color: leftArrowDisabled ? 'grey' : "black", size: '40px' }}
       >
         <div>
-          <BsArrowLeftSquare onClick={handleDecrement} style={{ cursor: leftArrowDisabled ? "" : "pointer" }} />
+          <BsArrowLeftCircle onClick={handleDecrement}
+            style={{ cursor: leftArrowDisabled ? "" : "pointer" }} />
         </div>
       </IconContext.Provider>
     );
