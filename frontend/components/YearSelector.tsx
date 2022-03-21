@@ -73,7 +73,7 @@ export default function YearSelector(props: { yearSelector: any, yearSelectorDat
   return (
     <div className={YearSelectorStyle.yearSelector} >
       <LeftArrow />
-      {displayedYear}
+      <div className={YearSelectorStyle.displayedYear}>{displayedYear}</div>
       <RightArrow />
 
     </div>

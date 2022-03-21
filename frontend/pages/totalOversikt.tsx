@@ -88,8 +88,8 @@ export default function TotalOversikt() {
       getData("getAvailableYears/?schoolid=" + params.id)
         .then((response) => {
           const availableYears = response.data
-          setYearSelectorData({ allYears: availableYears, currentYear: new Date().getFullYear()-1 })
-          setCurrentYear(new Date().getFullYear()-1)
+          setYearSelectorData({ allYears: availableYears, currentYear: availableYears[availableYears.length-1] })
+          setCurrentYear(availableYears[availableYears.length-1])
         })
         .catch((e) => { console.log(e) });
     }
