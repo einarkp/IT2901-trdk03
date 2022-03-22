@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-rv831ru5)8q)t%xz!fs3moj*7j2_o)#!7-6l&nw2633j-m!aum
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'knox',
     'drf_multiple_model',
     'schoolbudget',
 ]
@@ -127,6 +128,30 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+# This does not work? Check again...
+# CORS_ORIGIN_WHITELIST = [  
+#      'http://localhost:3000'
+# ]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+REST_FRAMEWORK = {
+     'DEFAULT_AUTHENTICATION_CLASSES': (
+         'rest_framework.authentication.BasicAuthentication' ,
+         'knox.auth.TokenAuthentication',),
+}
 CORS_ORIGIN_WHITELIST = [  
      'http://localhost:3000'
 ]

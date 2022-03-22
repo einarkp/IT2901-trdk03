@@ -3,8 +3,8 @@ import { URL, PORT } from '../Constants';
 import { LoginDetails } from '../Interfaces';
 import { createHeader } from './Helpers';
 
-const getAdress = () =>  {
-  return URL+':'+PORT+'/';
+const getAdress = () => {
+  return URL + ':' + PORT + '/';
 }
 
 /**
@@ -13,15 +13,32 @@ const getAdress = () =>  {
  * @param endpoint hvilke spesefike ressurser som skal etterspøres
  * @returns svar fra API-et i json format
  */
- export async function getData(endpoint: string = ''): Promise<any> {
-  const response = await axios.get(getAdress()+endpoint)
-  .then((data: AxiosResponse) => {
-    return data;
-  })
-  .catch((error) => {
-    console.error('There was an error!', error);
-});
-  return response 
+export async function getData(endpoint: string = ''): Promise<any> {
+  const response = await axios.get(getAdress() + endpoint)
+    .then((data: AxiosResponse) => {
+      return data;
+    })
+    .catch((error) => {
+      console.error('There was an error!', error);
+    });
+  return response
+}
+
+/**
+ * intern funskjon som bruker axios sin .post() til å gjøre
+ * et api kall mot den ønskede URL adressen
+ * @param endpoint hvilke spesefike ressurser som skal etterspøres
+ * @returns svar fra API-et i json format
+ */
+export async function postRequest(endpoint: string = '', dataBody: {} = {}): Promise<any> {
+  const response = await axios.post(getAdress() + endpoint, dataBody, createHeader())
+    .then((response: AxiosResponse) => {
+      return response;
+    })
+    .catch((error) => {
+      console.log(error, response)
+    });
+  return response
 }
 
 /**
@@ -31,14 +48,19 @@ const getAdress = () =>  {
  * @returns svar fra API-et i form av true false
  */
 export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
-  return await axios.post(getAdress()+'login', dataBody, createHeader())
+  return await axios.post(getAdress() + 'login/', dataBody, createHeader()) //, createHeader()
     .then((response: AxiosResponse) => {
-      return response.data;
+      if (response.statusText = 'OK') {
+        const loginstatus = response.data;
+        loginstatus.successful = true;
+        return loginstatus;
+      }
+      return { successful: false }
     })
     .catch((error) => {
       console.error('There was an error!', error);
-      return {successful: false}
-  });
+      return { successful: false }
+    });
 }
 
 /**

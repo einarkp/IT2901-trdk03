@@ -1,6 +1,7 @@
 import datetime
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import login
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
@@ -9,9 +10,21 @@ from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Bud
 from .arima import arima
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from knox.views import LoginView as KnoxLoginView
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework import permissions
 
 # Create your views here.
 
+class LoginView(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(LoginView, self).post(request, format=None)
 
 class SchoolView(viewsets.ViewSet):
     serializer_class = SchoolSerializer

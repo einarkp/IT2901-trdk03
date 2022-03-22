@@ -9,6 +9,8 @@ export interface Budget {
 export interface LoginDetails {
   user?: string,
   token?: string,
+  successful?: boolean,
+  expiry?: string,
 };
 export type TotalBudgetData = {
   school: number;
@@ -20,8 +22,13 @@ export type TotalBudgetData = {
 }
 export type User = {
   username: string,
-  schoolID: number,
+  schoolID: string | number,
   token: string,
+  type: UserTypes
+}
+export enum UserTypes {
+  normal,
+  admin
 }
 export type GraphDataProps = {
   data: Budget[],

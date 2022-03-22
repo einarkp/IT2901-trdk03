@@ -4,12 +4,15 @@ import Image from 'next/image'
 import { People } from "@navikt/ds-icons";
 import logoImg from '../images/logo.jpg'
 import styles from '../styles/Nav.module.css';
+import { observer } from "mobx-react"
+import { StoreContext } from '../pages/_app';
+import { handleLogout } from '../utils/Helpers';
 import Box from '@mui/material/Box';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { SxProps } from '@mui/system';
 
-
-const Header: React.FC = () => {
+const Header: React.FC = observer(() => {
+  const store = useContext(StoreContext)
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -30,7 +33,7 @@ const Header: React.FC = () => {
     minWidth: 175,
     boxShadow: '0 1px 10px 0 rgba(0, 0, 0, .4)'
   };
-  
+  if(store.loggedIn){
   return (
     <nav className={styles.nav}>
       <div className={styles.logo}>
@@ -38,7 +41,7 @@ const Header: React.FC = () => {
       </div>
       <ul>
         <li>
-          <Link  href={{ pathname: '/totalOversikt', query: { id: '' } }}> Totaloversikt </Link>
+          <Link  href={{ pathname: '/totalOversikt', query: { id: store.activeUser?.schoolID, year: 2022 } }}> Totaloversikt </Link>
         </li>
         <li>
           <Link href='/prognoser'> Prognoser </Link>
@@ -46,11 +49,18 @@ const Header: React.FC = () => {
         <li>
           <ClickAwayListener onClickAway={handleClickAway}>
             <Box sx={{ position: 'relative' }}>
-              <People color="black" className={styles.peopleIcon} onClick={handleClick}/>
+              <div className={styles.usertext} onClick={handleClick}>
+                {store.activeUser?.username}
+                <People color="black" className={styles.peopleIcon} />
+              </div>
               {open ? (
                 <Box className={styles.dropdown} onClick={handleClickAway} sx={dropdownProps}>
-                  <Link href='/minskole'> Min skole </Link>
-                  <Link href='/login'> Logg inn </Link>  
+                  <Link href='/minskole'> Min skole </Link> 
+                  <Link href='/login' >
+                    <a onClick={()=>{handleLogout().then(() => store.setActiveUser(null))}}>
+                      Logg ut
+                    </a>
+                  </Link>  
                 </Box>
               ) : null}
             </Box>
@@ -60,7 +70,19 @@ const Header: React.FC = () => {
       </ul>
       
     </nav>
-  );
-}
+
+  );}
+  return (<nav className={styles.nav}>
+    <ul>
+        <li>
+    <Link href='/login'><div className={styles.usertext}>
+    Logg inn
+    <People color="black" className={styles.peopleIcon}/>
+    </div>
+  </Link> 
+  </li>
+  </ul> 
+  </nav>)
+})
 
 export default Header;
