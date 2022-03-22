@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_nested import routers
+from knox import views as knox_views
 from schoolbudget import views
 
 router = routers.DefaultRouter()
@@ -63,5 +64,9 @@ urlpatterns = [
     path(r'', include(router.urls)),
     path(r'', include(schools_router.urls)),
     path(r'', include(budgets_router.urls)),
-    path('admin/', admin.site.urls),
+    path(r'admin/', admin.site.urls),
+    path(r'api/auth/', include('knox.urls')),
+    path(r'login/', views.LoginView.as_view(), name='knox_login'),
+    path(r'logout/', knox_views.LogoutView.as_view(), name='knox_logout'),
+    path(r'logoutall/', knox_views.LogoutAllView.as_view(), name='knox_logoutall'),
 ]
