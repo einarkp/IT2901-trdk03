@@ -13,6 +13,7 @@ from dateutil.relativedelta import relativedelta
 from knox.views import LoginView as KnoxLoginView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import permissions
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -280,3 +281,15 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 ), 'serializer_class': PredictionSerializer},
             )
         return querylist
+
+def getAvailableYears(request):
+    # Returns a list of years that has accounting/prediction data for given school
+    schoolId = request.GET.get('schoolid')
+    correspondingSchool = School.objects.filter(
+                pk=schoolId).first()
+    accoutingDates = Accounting.objects.filter(school=correspondingSchool).dates("date", "year")
+    accoutingYears = [date.year for date in accoutingDates]
+    predictionDates = Prediction.objects.filter(school=correspondingSchool).dates("date", "year")
+    predictionYears = [date.year for date in predictionDates]
+    allYears = sorted(list(set(accoutingYears) | set(predictionYears)))
+    return JsonResponse(allYears, safe=False)

@@ -9,6 +9,9 @@ export default function TotalOversikt() {
   const [oldData, setOldData]: any[] = useState([])
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
+  const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear() - 1 })
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+
 
   function combineAllDataApiResponse(allData: any) {
     // Combine the response arrays from backend into a format that fits Recharts.
@@ -24,6 +27,7 @@ export default function TotalOversikt() {
 
     const concatinatedArr = accountingArr.concat(predictionArr)
     const firstPredictionObject = concatinatedArr.find((element: { hasOwnProperty: (arg0: string) => any; }) => element.hasOwnProperty("isPrediction"))
+    // Values needed for uncertainty area 
     let currentCumulativeValue = 0
     let currentCumilitaveLowerBound = 0
     let currentCumilitaveUpperBound = 0
@@ -44,10 +48,8 @@ export default function TotalOversikt() {
         } else {
           currentCumilitaveLowerBound += currentLowerBound
           currentCumilitaveUpperBound += currentUpperBound
-
         }
       }
-
 
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
@@ -63,7 +65,6 @@ export default function TotalOversikt() {
         uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
         cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
-
       combinedDataArr.push(objectToAdd)
     }
 
@@ -83,20 +84,28 @@ export default function TotalOversikt() {
     }
 
     setInfoData(sidePanelInfo)
-    console.log(sidePanelInfo)
-
     return combinedDataArr
   }
 
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
+    // Get data for yearselector
+    if (yearSelectorData.allYears.includes(-1)) {
+      getData("getAvailableYears/?schoolid=" + params.id)
+        .then((response) => {
+          const availableYears = response.data
+          setYearSelectorData({ allYears: availableYears, currentYear: availableYears[availableYears.length - 1] })
+          setCurrentYear(availableYears[availableYears.length - 1])
+        })
+        .catch((e) => { console.log(e) });
+    }
     if (params.id === "example") {
       setOldData(combineAllDataApiResponse(dummyDataApiResponse))
       setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
     }
     else {
-      getData("all-data?year=" + (Number(params.year) - 1) + "&school=" + params.id)
+      getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
         .then((response) => {
           const AllDataApiResponse: AllDataApiResponse = response.data
           if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
@@ -121,10 +130,10 @@ export default function TotalOversikt() {
         })
         .catch((e) => { console.log(e) });
     }
-  }, []);
+  }, [currentYear]);
 
   return (<>
-    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} />}
+    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} />}
   </>
   )
 }

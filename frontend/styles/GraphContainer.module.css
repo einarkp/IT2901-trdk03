@@ -9,7 +9,15 @@
   height: 100%;
   border: 2px solid #162e5b;
   padding: 25px;
-
+  display: flex;
+  flex-direction: column;
+}
+.graphYear{
+  margin: 0 auto;
+  height: 40px;
+}
+.graphChart{
+  height: 100%;
 }
 .info {
   width: 35%;

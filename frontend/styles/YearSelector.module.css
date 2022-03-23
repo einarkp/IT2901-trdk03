@@ -1,0 +1,14 @@
+.yearSelector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.displayedYear {
+    font-weight: 500;
+    font-size: 1.1em;
+    margin-bottom: 6px;
+    /* border-bottom: 2px solid #000;  // <-- maybe? 
+    padding-bottom: 1px; */
+}

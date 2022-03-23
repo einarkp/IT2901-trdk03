@@ -43,10 +43,17 @@ export type GraphInfoProps = {
   maxMonthUse: string,
 };
 
+export type YearSelectorData = {
+  allYears: Number[],
+  currentYear: Number,
+}
+
 export type GraphProps = {
   data: Budget[],
   oldData: Budget[],
-  info: GraphInfoProps
+  info: GraphInfoProps,
+  setCurrentYear: (param: any) => void,  // TODO: look into replacing this with React.Dispatch<React.SetStateAction<number>>, or something similair
+  yearSelectorData: YearSelectorData
 };
 
 export type AllDataApiResponse = {
