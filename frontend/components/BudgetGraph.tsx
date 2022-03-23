@@ -152,7 +152,7 @@ const dummydata = {
 }
 
 
-const BudgetGraph = ({ data }: GraphDataProps) => {
+export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth: any, data:any}) {
 
   const [hideCumulativeAccounting, setHideCumulativeAccounting] = useState(false);
   const [hideAccounting, setHideAccounting] = useState(false);
@@ -169,28 +169,37 @@ const BudgetGraph = ({ data }: GraphDataProps) => {
     if (clickedLegend === "budget") setHideBudget(!hideBudget)
   }
 
+  function toggleClick(month: any) {
+    if (month == props.currentMonth) {
+      props.setCurrentMonth(null)
+    } else {
+      props.setCurrentMonth(month)
+    }
+  }
+
   return (
     <div>
       <ResponsiveContainer height={400} aspect={1.2}>
-        <ComposedChart className={styles.chart} data={data} margin={{ top: 20, right: 50, bottom: 0, left: 20 }}>
-          <Line strokeWidth="4" type="monotone" dataKey="accounting" stroke="blue" name="Regnskap" hide={hideAccounting} 
-            dot={{fill:"blue", r:4}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7}}/>
+        <ComposedChart className={styles.chart} data={props.data} margin={{ top: 20, right: 50, bottom: 0, left: 20 } }>
 
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccounting" stroke="red" name="Totalregnskap" hide={hideCumulativeAccounting} 
-            dot={{fill:"red",r:4}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7}} />
-
-          <Line strokeWidth="4" type="monotone" dataKey="accountingPrediction" name="Regnskapsprognose" stroke="blue" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideAccounting} 
-            dot={{fill:"blue",r:4, opacity:0.6}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7}} />
-
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccountingPrediction" name="Total regnskapsprognose" stroke="red" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideCumulativeAccounting} 
-            dot={{fill:"red", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7}}/>
-
-          <Line strokeWidth="3" type="monotone" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
-            dot={false} hide={hideBudget}/>
-          
           <Area type="monotone" dataKey="uncertainty" name="Usikkerhet" stroke="#8884d8" fill="blue" opacity={0.2} hide={hideAccounting}  />
 
           <Area type="monotone" dataKey="cumulativeUncertainty" name="Total usikkerhet" stroke="#8884d8" fill="red" opacity={0.2} hide={hideCumulativeAccounting} />
+
+          <Line strokeWidth="4" type="monotone" dataKey="accounting" stroke="blue" name="Regnskap" hide={hideAccounting} 
+            dot={{fill:"blue", r:4}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
+
+          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccounting" stroke="red" name="Totalregnskap" hide={hideCumulativeAccounting} 
+            dot={{fill:"red",r:4}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
+
+          <Line strokeWidth="4" type="monotone" dataKey="accountingPrediction" name="Regnskapsprognose" stroke="blue" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideAccounting} 
+            dot={{fill:"blue",r:4, opacity:0.6}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
+
+          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccountingPrediction" name="Total regnskapsprognose" stroke="red" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideCumulativeAccounting} 
+            dot={{fill:"red", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
+
+          <Line strokeWidth="3" type="monotone" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
+            dot={false} hide={hideBudget}/>
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis dataKey="date" tickFormatter={shortMonthFormatter} textAnchor="end" />
@@ -203,5 +212,4 @@ const BudgetGraph = ({ data }: GraphDataProps) => {
   )
 }
 
-export default BudgetGraph
 

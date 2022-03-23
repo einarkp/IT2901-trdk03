@@ -45,6 +45,7 @@ export type GraphInfoProps = {
 
 export type GraphProps = {
   data: Budget[],
+  oldData: Budget[],
   info: GraphInfoProps
 };
 

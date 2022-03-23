@@ -6,6 +6,7 @@ import { longMonthFormatter } from "../utils/DateFormaters"
 
 export default function TotalOversikt() {
 
+  const [oldData, setOldData]: any[] = useState([])
   const [graphData, setGraphData]: any[] = useState([])
   const [infoData, setInfoData]: any[] = useState([])
 
@@ -15,7 +16,7 @@ export default function TotalOversikt() {
     const combinedDataArr = []
     const accountingArr = allData.Accounting
     const predictionArr = allData.Prediction
-    const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount :  null
+    const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount : null
     predictionArr.forEach((element: { amount: number; isPrediction: boolean; }) => {  // Need some way of differentiating prediction values
       element.amount = Math.floor(element.amount)
       element.isPrediction = true
@@ -29,25 +30,25 @@ export default function TotalOversikt() {
     // Values needed for right side info panel:
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
-    let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length  
+    let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length
     for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
       currentCumulativeValue += currentAmount
 
       const currentLowerBound = Math.floor(concatinatedArr[index].lower_bound)
       const currentUpperBound = Math.floor(concatinatedArr[index].upper_bound)
-      if(!isNaN(currentLowerBound) && !isNaN(currentUpperBound)){
-        if(currentCumilitaveLowerBound === 0 && currentCumilitaveUpperBound === 0){
+      if (!isNaN(currentLowerBound) && !isNaN(currentUpperBound)) {
+        if (currentCumilitaveLowerBound === 0 && currentCumilitaveUpperBound === 0) {
           currentCumilitaveLowerBound = currentCumulativeValue
           currentCumilitaveUpperBound = currentCumulativeValue
-        } else{
+        } else {
           currentCumilitaveLowerBound += currentLowerBound
           currentCumilitaveUpperBound += currentUpperBound
 
         }
       }
 
-      
+
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -59,19 +60,19 @@ export default function TotalOversikt() {
         accountingPrediction: isPrediction ? currentAmount : null,
         cumulativeAccountingPrediction: isPrediction ? currentCumulativeValue : null,
         budget: budget,
-        uncertainty: [ isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null ],
-        cumulativeUncertainty: [ isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null ]
+        uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
+        cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
-      
+
       combinedDataArr.push(objectToAdd)
     }
 
     // Set values in right side info panel:
     const highestAccountingMonth = longMonthFormatter(new Date(highestValueObject.date!)).split(" ")[0]
     const LowestAccountingMonth = longMonthFormatter(new Date(lowestValueObject.date!)).split(" ")[0]
-    const relativePercentage = Math.floor(( budget / currentCumulativeValue ) * 100)
+    const relativePercentage = Math.floor((budget / currentCumulativeValue) * 100)
     //Checks if it is within fail margin
-    const withinMargin = (currentCumilitaveUpperBound-((currentCumilitaveUpperBound-currentCumulativeValue)/2)) > budget
+    const withinMargin = (currentCumilitaveUpperBound - ((currentCumilitaveUpperBound - currentCumulativeValue) / 2)) > budget
     const sidePanelInfo: GraphInfoProps = {
       result: budget > currentCumulativeValue,
       withinMargin: withinMargin,
@@ -80,6 +81,7 @@ export default function TotalOversikt() {
       worstMonth: highestValueObject.amount + " (" + highestAccountingMonth + ")",
       maxMonthUse: "..",
     }
+
     setInfoData(sidePanelInfo)
     console.log(sidePanelInfo)
 
@@ -90,27 +92,39 @@ export default function TotalOversikt() {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     if (params.id === "example") {
+      setOldData(combineAllDataApiResponse(dummyDataApiResponse))
       setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
     }
     else {
-      getData("all-data?year=" + params.year + "&school=" + params.id)
+      getData("all-data?year=" + (Number(params.year) - 1) + "&school=" + params.id)
         .then((response) => {
-          const AllDataApiResponse:AllDataApiResponse = response.data
+          const AllDataApiResponse: AllDataApiResponse = response.data
           if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
             // TODO: could not find data for specified school id, show some kind of feedback.
             console.log("Found no school with id " + params.id)
           }
           else {
             // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
-            setGraphData(combineAllDataApiResponse(AllDataApiResponse))
+            setOldData(combineAllDataApiResponse(AllDataApiResponse))
           }
+          getData("all-data?year=" + params.year + "&school=" + params.id)
+            .then((response) => {
+              const AllDataApiResponse: AllDataApiResponse = response.data
+              if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
+                // TODO: could not find data for specified school id, show some kind of feedback.
+                console.log("Found no school with id " + params.id)
+              } else {
+                // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
+                setGraphData(combineAllDataApiResponse(AllDataApiResponse))
+              }
+            })
         })
         .catch((e) => { console.log(e) });
     }
   }, []);
 
   return (<>
-    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} />}
+    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} />}
   </>
   )
 }
