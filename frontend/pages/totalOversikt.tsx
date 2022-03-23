@@ -105,7 +105,7 @@ export default function TotalOversikt() {
       setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
     }
     else {
-      getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
+      getData("all-data?year=" + Number(currentYear-1) + "&school=" + params.id)
         .then((response) => {
           const AllDataApiResponse: AllDataApiResponse = response.data
           if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
@@ -116,7 +116,7 @@ export default function TotalOversikt() {
             // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
             setOldData(combineAllDataApiResponse(AllDataApiResponse))
           }
-          getData("all-data?year=" + params.year + "&school=" + params.id)
+          getData("all-data?year=" + currentYear + "&school=" + params.id)
             .then((response) => {
               const AllDataApiResponse: AllDataApiResponse = response.data
               if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
