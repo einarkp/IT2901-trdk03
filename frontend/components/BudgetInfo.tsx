@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import { spawn } from 'child_process'
+import React, { useEffect, useState } from 'react'
 import styles from '../styles/BudgetInfo.module.css'
+import { longMonthFormatter } from '../utils/DateFormaters'
 
 
-export const BudgetInfo = ({info}:any) => {
+export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
   let percentage = 100
-  if(info.resultPercent < 100){
-     percentage = 100 - info.resultPercent
-  } else{
+  console.log(data[4])
+  if (info.resultPercent < 100) {
+    percentage = 100 - info.resultPercent
+  } else {
     percentage = info.resultPercent - 100
   }
   const ResultsPositive = () => (
@@ -27,14 +30,91 @@ export const BudgetInfo = ({info}:any) => {
       <span>Forbruket kan oppjusteres med {percentage}%</span>
     </div>
   )
-  
-  return (
-    <div className={styles.container}>
-      <span className={styles.topText}>Vil budsjettet gå rundt?</span>
-      {info.result ? (info.withinMargin ? <ResultsBetween /> : <ResultsPositive />) : <ResultsNegative />}
 
-      <table className={styles.infoTable}>
-        <tbody>
+
+  // toggles between normal view and detail view, as well as accountings and predictions
+  let prediction = false
+  let normalView = false
+  
+  if (currentMonth == null) {
+    normalView = true
+  }
+  if (!normalView && data[currentMonth].accounting == null) {
+    prediction = true
+  }
+
+
+  const [previousAccounting, setPreviousAccounting] = useState("...")
+  const [previousCumulativeAccounting, setPreviousCumulativeAccounting] = useState("...")
+  const [previousBudget, setPreviousBudget] = useState("...")
+  const [displayMonth, setDisplayMonth] = useState("...")
+  const [previousDisplayMonth, setPreviousDisplayMonth] = useState("...")
+  
+  // updates data when month changes
+  useEffect(() => {
+    if (currentMonth != null) {
+      const year = data[currentMonth].date.getFullYear()
+      const date = new Date(year, currentMonth, 1)
+      const prevDate = new Date(year-1, currentMonth, 1)
+      setDisplayMonth(longMonthFormatter(date))
+      setPreviousDisplayMonth(longMonthFormatter(prevDate))
+      if (oldData.length != 0) {
+        setPreviousAccounting(oldData[currentMonth].accounting)
+        setPreviousCumulativeAccounting(oldData[currentMonth].cumulativeAccounting)
+        setPreviousBudget(oldData[currentMonth].budget)
+      }
+    }
+  }, [currentMonth])
+
+
+  const DetailedTable = () => (
+    <table className={styles.infoTable}>
+      <thead>
+        {displayMonth}
+      </thead>
+      <tbody>
+        <tr>
+          <td>{prediction ? <span>Regnskapsprognose</span> : <span>Regnskap</span>}</td>
+          <td>{prediction ? data[currentMonth].accountingPrediction : data[currentMonth].accounting}</td>
+        </tr>
+        <tr>
+          <td>{prediction ? <span>Totalregnskapsprognose</span> : <span>Totalregnskap</span>}</td>
+          <td>{prediction ? data[currentMonth].cumulativeAccountingPrediction : data[currentMonth].cumulativeAccounting}</td>
+        </tr>
+        <tr>
+          <td>Budsjett</td>
+          <td>{data[currentMonth].budget}</td>
+        </tr>
+        <tr>
+          <td>Elever</td>
+          <td>{/*TODO: ADD ELEV DATA*/}...</td>
+        </tr>
+        <thead>
+          {previousDisplayMonth}
+        </thead>
+        <tr>
+          <td>Regnskap</td>
+          <td>{previousAccounting}</td>
+        </tr>
+        <tr>
+          <td>Totalregnskap</td>
+          <td>{previousCumulativeAccounting}</td>
+        </tr>
+        <tr>
+          <td>Budsjett</td>
+          <td>{previousBudget}</td>
+        </tr>
+        <tr>
+          <td>Elever</td>
+          <td>{/*TODO: ADD ELEV DATA*/}...</td>
+        </tr>
+      </tbody>
+    </table>
+  )
+
+  const InfoTable = () => (
+    <table className={styles.infoTable}>
+      <tbody>
         <tr>
           <td>Beste måned:</td>
           <td>{info.bestMonth}</td>
@@ -47,8 +127,16 @@ export const BudgetInfo = ({info}:any) => {
           <td>Max månedsbruk:</td>
           <td>{info.maxMonthUse}</td>
         </tr>
-        </tbody>
-      </table>  
+      </tbody>
+    </table>
+  )
+
+  return (
+    <div className={styles.container}>
+      <span className={styles.topText}>Vil budsjettet gå rundt?</span>
+      {info.result ? (info.withinMargin ? <ResultsBetween /> : <ResultsPositive />) : <ResultsNegative />}
+
+      {normalView ? <InfoTable /> : <DetailedTable />}
     </div>
   )
 }
