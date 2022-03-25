@@ -1,12 +1,14 @@
 import datetime
+from operator import indexOf
+import this
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
-from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer
-from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Budget
+from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer, PupilsSerializer
+from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Budget, Pupils
 from .arima import arima
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -83,13 +85,55 @@ class BudgetView(viewsets.ViewSet):
             correspondingSchool = School.objects.filter(
                 pk=budget["schoolId"]).first()
             # Delete old entry if it exists, only one budget entry should exist per year
-            Budget.objects.filter(date__year = budget["year"], school=correspondingSchool).delete()
-            
+            Budget.objects.filter(date__year=budget["year"], school=correspondingSchool).delete()
+
             # Add new value
             date = datetime.date(budget["year"], budget["month"], 1)
             Budget.objects.create(
                 school=correspondingSchool, date=date, amount=budget["amount"])
         return Response("Probably added some budgets")
+
+class PupilsView(viewsets.ViewSet):
+    serializer_class = PupilsSerializer
+
+    # filters pupils by year if given
+    def get_queryset(self, school_pk):
+        year = self.request.query_params.get('year')
+
+        if year and year.isnumeric():
+            queryset = Pupils.objects.filter(
+                year__year=year, school=school_pk)
+        else:
+            queryset = Pupils.objects.filter(school=school_pk)
+        return queryset
+
+    def list(self, request, school_pk=None):
+        serializer = PupilsSerializer(
+            self.get_queryset(school_pk), many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, school_pk=None):
+        queryset = Pupils.objects.filter(pk=pk, school=school_pk)
+        pupils = get_object_or_404(queryset, pk=pk)
+        serializer = PupilsSerializer(pupils)
+        return Response(serializer.data)
+
+    def post(self, request, school_pk=None):  # Add or update pupil entry in db
+        for pupils in request.data:
+            correspondingSchool = School.objects.filter(pk=pupils["schoolId"]).first()
+
+            date2add = datetime.date(pupils["year"], 1, 1)
+
+            # "pupils" data object contain arrays of amount of pupils for spring/autumn, iterate array and add pupils to corresponding grade based on index in array.
+            #  Delete old entry if it exists, date/year&grade combo is unique (year field in db is a date object), should only ever exist one entry
+            for x in range(len(pupils["spring"])):
+                springPupils = pupils["spring"][x]
+                autumnPupils = pupils["autumn"][x]
+                springGrade = x+1
+                Pupils.objects.filter(year=datetime.date(pupils["year"], 1, 1), grade=springGrade, school=correspondingSchool).delete()
+                Pupils.objects.create(school=correspondingSchool, year=date2add, spring=springPupils, autumn=autumnPupils, grade=springGrade)
+
+        return Response("Probably added some Pupil values")
 
 
 class AccountingView(viewsets.ViewSet):
@@ -118,21 +162,23 @@ class AccountingView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def post(self, request, school_pk=None):  # Add/update accounting entry in db
+
         for accounting in request.data:
             # Cannot add future accounting values
             today = date.today()
-            if (today.year < accounting["year"] or (today.year == accounting["year"] and today.month < accounting["month"])):
+            if (today.year < accounting['year'] or (today.year == accounting['year'] and today.month < accounting['month'])):
                 return HttpResponse('Cannot add future accounting values', status=400)
             correspondingSchool = School.objects.filter(
                 pk=accounting["schoolId"]).first()
             # Delete old entry if it exists, month&year combo is unique, should only ever exist one entry
-            Accounting.objects.filter(date__month = accounting["month"], date__year = accounting["year"], school=correspondingSchool).delete()
-            
+            Accounting.objects.filter(date__month=accounting["month"], date__year=accounting["year"], school=correspondingSchool).delete()
+
             # Add new value
             date2add = datetime.date(accounting["year"], accounting["month"], 1)
             Accounting.objects.create(
                 school=correspondingSchool, date=date2add, amount=accounting["amount"])
         return Response("Probably added some accounting values")
+
 
 class PredicitonView(viewsets.ViewSet):
     serializer_class = PredictionSerializer
@@ -154,52 +200,53 @@ class PredicitonView(viewsets.ViewSet):
         serializer = PredictionSerializer(self.get_queryset(school_pk), many=True)
         return Response(serializer.data)
 
-        
     def post(self, request, school_pk=None):
-        ## Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
-        ## 12 calculated values as predictions (this involved replacing existing predictions with date 
-        ## greater than latest accounting date).
+        # Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
+        # 12 calculated values as predictions (this involved replacing existing predictions with date
+        # greater than latest accounting date).
 
-        ## Maybe a better idea would be to handle predictions on a
-        ## year to year basis? Easier to continually update?
-        ## NOTE: There are 100% issues with this implementation, just can't think of them now...
-        ## something to do with a lack of accounting data from users even though it's a new year
-        ## and they want to see 12 values. This implementation would not take that into account (maybe?).
-        ## A fix would be to do a date check for if it's december/january then just set the
-        ## dates for the predictions for the upcoming year (month 1,2,3,4,5,6,7,8,9,10,11,12)...
+        # Maybe a better idea would be to handle predictions on a
+        # year to year basis? Easier to continually update?
+        # NOTE: There are 100% issues with this implementation, just can't think of them now...
+        # something to do with a lack of accounting data from users even though it's a new year
+        # and they want to see 12 values. This implementation would not take that into account (maybe?).
+        # A fix would be to do a date check for if it's december/january then just set the
+        # dates for the predictions for the upcoming year (month 1,2,3,4,5,6,7,8,9,10,11,12)...
 
         allAccountingValues = []
-        accountings = Accounting.objects.filter(school = school_pk)
+        accountings = Accounting.objects.filter(school=school_pk)
         for accounting in accountings:
             allAccountingValues.append(accounting.amount)
 
         coefficient = self.request.query_params.get('coefficient')
         if not coefficient:
             coefficient = 0.05
-            
-        arimaResults, confResults = arima(allAccountingValues, 12,0,1, coefficient) # should replace 0.05 with "coefficient 
 
-        ## Delete all existing prediction values with date from latest accounting date until now.
-        latestAccountingDate = Accounting.objects.filter(school = school_pk).latest("date").date
-        Prediction.objects.filter(date__gte=latestAccountingDate, school = school_pk).delete()
+        # should replace 0.05 with "coefficient
+        arimaResults, confResults = arima(allAccountingValues, 12, 0, 1, coefficient)
 
-        ## Add the new values from arima to prediction table, add year and month they belong to (date-object)
-        ## day is irrelevant, start with latestAccountingDate+1month, then increment month
+        # Delete all existing prediction values with date from latest accounting date until now.
+        latestAccountingDate = Accounting.objects.filter(school=school_pk).latest("date").date
+        Prediction.objects.filter(date__gte=latestAccountingDate, school=school_pk).delete()
+
+        # Add the new values from arima to prediction table, add year and month they belong to (date-object)
+        # day is irrelevant, start with latestAccountingDate+1month, then increment month
         safeStartDate = date(latestAccountingDate.year, latestAccountingDate.month, 12)
-        currentPredictionDate = safeStartDate + relativedelta(months=1)  # TODO: NEEDS TESTING...
-        correspondingSchool = School.objects.filter(
-                pk=school_pk).first()
-                
+        # TODO: NEEDS TESTING...
+        currentPredictionDate = safeStartDate + relativedelta(months=1)
+        correspondingSchool = School.objects.filter(pk=school_pk).first()
+
         sum = 0
         for result in arimaResults:
-            c1 = confResults[sum,0]
-            c2 = confResults[sum,1]
+            c1 = confResults[sum, 0]
+            c2 = confResults[sum, 1]
             sum += 1
-            
+
             Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=c1, upper_bound=c2, coefficient=coefficient)
             currentPredictionDate += relativedelta(months=1)
 
         return Response("Probably created/updated some prediction values")
+
 
 class BudgetChangeView(viewsets.ViewSet):
     serializer_class = BudgetChangeSerializer
@@ -253,6 +300,8 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                     date__year=year, budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prediction.objects.filter(
                     date__year=year, school=school_pk), 'serializer_class': PredictionSerializer},
+                {'queryset': Pupils.objects.filter(
+                    date__year=year, school=school_pk), 'serializer_class': PupilsSerializer},
             )
         elif school_pk and school_pk.isnumeric():
             querylist = (
@@ -266,6 +315,8 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                     budget__school=school_pk), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prediction.objects.filter(
                     school=school_pk), 'serializer_class': PredictionSerializer},
+                {'queryset': Pupils.objects.filter(
+                    school=school_pk), 'serializer_class': PupilsSerializer},
             )
         else:
             querylist = (
@@ -279,6 +330,8 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 ), 'serializer_class': BudgetChangeSerializer},
                 {'queryset': Prediction.objects.filter(
                 ), 'serializer_class': PredictionSerializer},
+                {'queryset': Pupils.objects.filter(),
+                 'serializer_class': PupilsSerializer},
             )
         return querylist
 

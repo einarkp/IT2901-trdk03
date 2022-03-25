@@ -45,6 +45,10 @@ schools_router.register(r'budgets', views.BudgetView, basename='school-budgets')
 # /schools/{responsibility}/accountings/{accounting_pk}
 schools_router.register(r'accountings', views.AccountingView, basename='school-accountings')
 
+# /schools/{responsibility}/pupils
+# /schools/{responsibility}/pupils?year=YYYY
+schools_router.register(r'pupils', views.PupilsView, basename='school-pupils')
+
 # /schools/{responsibility}/predictions
 # /schools/{responsibility}/predicitons?start=YYYY-MM-DD&end=YYYY-MM-DD
 schools_router.register(r'predictions', views.PredicitonView, basename='school-predictions')

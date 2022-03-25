@@ -5,6 +5,18 @@ class School(models.Model):
     responsibility = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
 
+class Pupils(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    year = models.DateField()
+    spring = models.IntegerField() 
+    autumn = models.IntegerField() 
+    grade = models.IntegerField() 
+
+
+    class Meta:
+        unique_together = ('school', 'year', 'grade')
+
+
 class Budget(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     date = models.DateField()

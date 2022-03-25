@@ -1,9 +1,12 @@
 from django.contrib import admin
-from .models import Prediction, School, Budget, Accounting, BudgetChange, Prognosis
+from .models import Prediction, School, Budget, Accounting, BudgetChange, Prognosis, Pupils
 
 # Register your models here.
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ('responsibility', 'name')
+
+class PupilsAdmin(admin.ModelAdmin):
+    list_display = ('school', 'year', 'spring','autumn', 'grade')
 
 class BudgetAdmin(admin.ModelAdmin):
     list_display = ('school', 'date', 'amount')
@@ -14,6 +17,7 @@ class UpdateAdmin(admin.ModelAdmin):
 class PredictionAdmin(admin.ModelAdmin):
     list_display = ('school', 'date', 'amount', 'lower_bound', 'upper_bound', 'coefficient')
 
+admin.site.register(Pupils, PupilsAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register([Budget, Accounting], BudgetAdmin)
 admin.site.register([BudgetChange, Prognosis], UpdateAdmin)
