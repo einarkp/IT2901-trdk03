@@ -1,6 +1,6 @@
 from dataclasses import fields
 from rest_framework import serializers
-from .models import Accounting, Budget, BudgetChange, Prediction, Prognosis, School
+from .models import Accounting, Budget, BudgetChange, Prediction, Prognosis, School, Pupils
 
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +14,14 @@ class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
         fields = ('school', 'date', 'amount')
+
+class PupilsSerializer(serializers.ModelSerializer):
+    parent_lookup_kwargs = {
+        'school_pk' : 'school__pk',
+    }
+    class Meta:
+        model = Pupils
+        fields = ('school', 'year', 'spring','autumn', 'grade')
 
 
 class AccountingSerializer(serializers.ModelSerializer):
