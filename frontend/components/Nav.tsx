@@ -44,7 +44,7 @@ const Header: React.FC = observer(() => {
           <Link  href={{ pathname: '/totalOversikt', query: { id: store.activeUser?.schoolID, year: 2022 } }}> Totaloversikt </Link>
         </li>
         <li>
-          <Link href='/prognoser'> Prognoser </Link>
+          <Link href='/elever'> Elever </Link>
         </li>
         <li>
           <ClickAwayListener onClickAway={handleClickAway}>

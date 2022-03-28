@@ -48,6 +48,19 @@ export type YearSelectorData = {
   currentYear: Number,
 }
 
+export type PupilBackendObject = {
+  school: number,
+  year: string, // <-- this is a string with format "2022-01-01"
+  spring: number, // Amount of students spring semester for this year and grade
+  autumn: number,
+  grade: number // 1-10
+}
+
+export type SemesterSelectorData = {
+  allSemesters: string[],
+  currentSemester: string,
+}
+
 export type GraphProps = {
   data: Budget[],
   oldData: Budget[],

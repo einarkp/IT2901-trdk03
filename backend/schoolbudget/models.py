@@ -12,7 +12,6 @@ class Pupils(models.Model):
     autumn = models.IntegerField() 
     grade = models.IntegerField() 
 
-
     class Meta:
         unique_together = ('school', 'year', 'grade')
 

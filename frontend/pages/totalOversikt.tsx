@@ -100,36 +100,36 @@ export default function TotalOversikt() {
         })
         .catch((e) => { console.log(e) });
     }
-    if (params.id === "example") {
-      setOldData(combineAllDataApiResponse(dummyDataApiResponse))
-      setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
-    }
-    else {
-      getData("all-data?year=" + Number(currentYear-1) + "&school=" + params.id)
-        .then((response) => {
-          const AllDataApiResponse: AllDataApiResponse = response.data
-          if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
-            // TODO: could not find data for specified school id, show some kind of feedback.
-            console.log("Found no school with id " + params.id)
-          }
-          else {
-            // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
-            setOldData(combineAllDataApiResponse(AllDataApiResponse))
-          }
-          getData("all-data?year=" + currentYear + "&school=" + params.id)
-            .then((response) => {
-              const AllDataApiResponse: AllDataApiResponse = response.data
-              if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
-                // TODO: could not find data for specified school id, show some kind of feedback.
-                console.log("Found no school with id " + params.id)
-              } else {
-                // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
-                setGraphData(combineAllDataApiResponse(AllDataApiResponse))
-              }
-            })
-        })
-        .catch((e) => { console.log(e) });
-    }
+      if (params.id === "example") {
+        setOldData(combineAllDataApiResponse(dummyDataApiResponse))
+        setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
+      }
+      else {
+        getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
+          .then((response) => {
+            const AllDataApiResponse: AllDataApiResponse = response.data
+            if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
+              // TODO: could not find data for specified school id, show some kind of feedback.
+              console.log("Found no school with id " + params.id)
+            }
+            else {
+              // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
+              setOldData(combineAllDataApiResponse(AllDataApiResponse))
+            }
+            getData("all-data?year=" + currentYear + "&school=" + params.id)
+              .then((response) => {
+                const AllDataApiResponse: AllDataApiResponse = response.data
+                if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
+                  // TODO: could not find data for specified school id, show some kind of feedback.
+                  console.log("Found no school with id " + params.id)
+                } else {
+                  // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
+                  setGraphData(combineAllDataApiResponse(AllDataApiResponse))
+                }
+              })
+          })
+          .catch((e) => { console.log(e) });
+      }
   }, [currentYear]);
 
   return (<>
@@ -138,12 +138,12 @@ export default function TotalOversikt() {
   )
 }
 
-const dummyInfo: GraphInfoProps = {
-  result: true,
-  bestMonth: "-693950 (Juni)",
-  worstMonth: "2816690 (Oktober)",
-  maxMonthUse: "..",
-}
+// const dummyInfo: GraphInfoProps = {
+//   result: true,
+//   bestMonth: "-693950 (Juni)",
+//   worstMonth: "2816690 (Oktober)",
+//   maxMonthUse: "..",
+// }
 
 const dummyDataApiResponse = {
   "Accounting": [

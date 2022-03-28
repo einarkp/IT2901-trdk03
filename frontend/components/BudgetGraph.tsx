@@ -178,9 +178,9 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
   }
 
   return (
-    <div>
-      <ResponsiveContainer height={400} aspect={1.2}>
-        <ComposedChart className={styles.chart} data={props.data} margin={{ top: 20, right: 50, bottom: 0, left: 20 } }>
+    <div className={styles.container}>
+      <ResponsiveContainer width="95%" height={600}>
+        <ComposedChart className={styles.lineChart} data={props.data} margin={{ top: 20, right: 20, bottom: 0, left: 20 } }>
 
           <Area type="monotone" dataKey="uncertainty" name="Usikkerhet" stroke="#8884d8" fill="blue" opacity={0.2} hide={hideAccounting}  />
 

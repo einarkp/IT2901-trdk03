@@ -1,6 +1,5 @@
 import datetime
 from operator import indexOf
-import this
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
@@ -119,6 +118,12 @@ class PupilsView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def post(self, request, school_pk=None):  # Add or update pupil entry in db
+        # from frontend: pupilObject = {
+        #     schoolId: 123,
+        #     year: 2022,
+        #     autumn: [123, 12, 143, 12, 123, 123, 123, 0, 0, 0],
+        #     spring: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        # }
         for pupils in request.data:
             correspondingSchool = School.objects.filter(pk=pupils["schoolId"]).first()
 
@@ -301,7 +306,7 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 {'queryset': Prediction.objects.filter(
                     date__year=year, school=school_pk), 'serializer_class': PredictionSerializer},
                 {'queryset': Pupils.objects.filter(
-                    date__year=year, school=school_pk), 'serializer_class': PupilsSerializer},
+                    year__year=year, school=school_pk), 'serializer_class': PupilsSerializer},
             )
         elif school_pk and school_pk.isnumeric():
             querylist = (
