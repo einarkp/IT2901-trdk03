@@ -13,10 +13,7 @@ export const isTokenValid = (): boolean => {
   new Date(JSON.parse(localStorage.getItem("token")!).expiry) <= new Date() && {return: false} //expiry vs current Date check
   return true;
 }
-export const handleLogin = (details: LoginDetails) => {
-  localStorage.setItem("token", details.token ? JSON.stringify({"token": details.token, "expiry": details.expiry}) : "")
-  localStorage.setItem("user", details.user ? details.user : "")
-}
+
 
 /**
  * Tried to send a login request and set the current user and token 

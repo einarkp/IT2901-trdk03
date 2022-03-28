@@ -22,6 +22,7 @@ from schoolbudget import views
 
 router = routers.DefaultRouter()
 
+
 # /schools/
 # /schools/{responsibility}
 router.register(r'schools', views.SchoolView, basename='schools')
@@ -68,6 +69,7 @@ urlpatterns = [
     path(r'', include(router.urls)),
     path(r'', include(schools_router.urls)),
     path(r'', include(budgets_router.urls)),
+    path('users/', include('users.urls')),
     path(r'admin/', admin.site.urls),
     path(r'api/auth/', include('knox.urls')),
     path(r'login/', views.LoginView.as_view(), name='knox_login'),

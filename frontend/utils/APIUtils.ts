@@ -48,7 +48,7 @@ export async function postRequest(endpoint: string = '', dataBody: {} = {}): Pro
  * @returns svar fra API-et i form av true false
  */
 export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
-  return await axios.post(getAdress() + 'login/', dataBody, createHeader()) //, createHeader()
+  return await axios.post(getAdress()+'users/login', dataBody, createHeader())
     .then((response: AxiosResponse) => {
       if (response.statusText = 'OK') {
         const loginstatus = response.data;
