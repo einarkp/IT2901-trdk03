@@ -3,11 +3,12 @@ import { Formik, Field, Form } from 'formik'
 import formStyles from '../styles/LoginForm.module.css'
 import { loginRequest } from '../utils/APIUtils';
 import { handleLogin } from '../utils/Helpers';
-import { LoginDetails, User, UserTypes } from '../Interfaces';
+import { LoginDetails, User } from '../Interfaces';
 import { StoreContext } from '../pages/_app';
+import { observer } from "mobx-react"
 
-export default function LoginForm() {
-    const store = useContext(StoreContext)
+const LoginForm: React.FC = observer(() => {
+const store = useContext(StoreContext)
   return (
     <Formik
             initialValues={{
@@ -16,13 +17,15 @@ export default function LoginForm() {
             }}
             onSubmit={async (values) => {
                 await loginRequest(JSON.stringify(values, null, 2))
-                    .then((response) => {
+                    .then((r) => {
+                        var response = r as LoginDetails
                         if(response && response.successful){
-                            handleLogin(response as LoginDetails)
-                            var activeUser: User = {username: values.username, token: response.token!, schoolID: 'example', type: UserTypes.normal}
-                            localStorage.setItem("user", JSON.stringify(activeUser))
+                            localStorage.setItem("token", response.token ? JSON.stringify({"token": response.token, "expiry": response.expiry}) : "")
+                            localStorage.setItem("user", response.user ? JSON.stringify(response.user) : "")
                             localStorage.setItem("password", values.password)
-                            store.setActiveUser(JSON.parse(localStorage.getItem("user")!) as User)
+
+                            var activeUser: User = response.user as User;
+                            store.setActiveUser(activeUser)
                             //TODO: ikke hardkode denne, er også en dårlig løsning
                             window.location.href = '/totalOversikt?' + "id="+store.activeUser?.schoolID+"&year=2022"
                         }else{
@@ -41,4 +44,5 @@ export default function LoginForm() {
             </Form>
         </Formik>
   )
-}
+})
+export default LoginForm;

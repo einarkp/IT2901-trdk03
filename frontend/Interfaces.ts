@@ -7,7 +7,7 @@ export interface Budget {
   cumulativeUncertainty: number[] | null;
 }
 export interface LoginDetails {
-  user?: string,
+  user?: User,
   token?: string,
   successful?: boolean,
   expiry?: string,
@@ -23,13 +23,12 @@ export type TotalBudgetData = {
 export type User = {
   username: string,
   schoolID: string | number,
-  token: string,
-  type: UserTypes
+  token?: string,
+  id: number,
+  user_type: string
 }
-export enum UserTypes {
-  normal,
-  admin
-}
+
+
 export type GraphDataProps = {
   data: Budget[],
 };
