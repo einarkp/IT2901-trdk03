@@ -16,9 +16,7 @@ export default function GraphContainer({ data, info, setCurrentYear, yearSelecto
         <div className={ContainerStyle.graphYear}>
           <YearSelector yearSelector={setCurrentYear} yearSelectorData={yearSelectorData} />
         </div>
-        <div className={ContainerStyle.graphChart}>
-          <BudgetGraph data={data} setCurrentMonth={setCurrentMonth} currentMonth={currentMonth} />
-        </div>
+        <BudgetGraph data={data} setCurrentMonth={setCurrentMonth} currentMonth={currentMonth} />
       </div>
       <div className={ContainerStyle.info}>
         <BudgetInfo info={info} data={data} oldData={oldData} currentMonth={currentMonth} />
