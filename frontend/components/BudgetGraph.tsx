@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, ComposedChart, Area } from 'recharts';
 import { DataKey } from 'recharts/types/util/types';
-import { GraphDataProps } from '../Interfaces';
+import { combinedBudgetData, GraphDataProps } from '../Interfaces';
 import styles from '../styles/BudgetGraph.module.css'
 import {shortMonthFormatter, longMonthFormatter, amountFormatter} from "../utils/DateFormaters"
 
@@ -152,18 +152,23 @@ const dummydata = {
 }
 
 
-export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth: any, data:any}) {
+export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth: any, data: any, oldData: any}) {
 
   const [hideCumulativeAccounting, setHideCumulativeAccounting] = useState(false);
   const [hideAccounting, setHideAccounting] = useState(false);
+  const [hideCumulativeOldAccounting, setHideCumulativeOldAccounting] = useState(false);
+  const [hideOldAccounting, setHideOldAccounting] = useState(false);
   const [hideAccountingPrediction, setHideAccountingPrediction] = useState(false);
   const [hideCumulativeAccountingPrediction, setHideCumulativeAccountingPrediction] = useState(false);
   const [hideBudget, setHideBudget] = useState(false)
+  
 
   function handleHideLine(e: { dataKey?: DataKey<string>; }) {
     const clickedLegend = e.dataKey
     if (clickedLegend === "cumulativeAccounting") setHideCumulativeAccounting(!hideCumulativeAccounting)
     if (clickedLegend === "accounting") setHideAccounting(!hideAccounting)
+    if (clickedLegend === "cumulativeOldAccounting") setHideCumulativeOldAccounting(!hideCumulativeOldAccounting)
+    if (clickedLegend === "oldAccounting") setHideOldAccounting(!hideOldAccounting)
     if (clickedLegend === "accountingPrediction") setHideAccountingPrediction(!hideAccountingPrediction)
     if (clickedLegend === "cumulativeAccountingPrediction") setHideCumulativeAccountingPrediction(!hideCumulativeAccountingPrediction)
     if (clickedLegend === "budget") setHideBudget(!hideBudget)
@@ -176,28 +181,58 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
       props.setCurrentMonth(month)
     }
   }
+  
+  //Combines data from last year with data from current year
+  function combineData(data: any, oldData: any){
+    let combinedData: combinedBudgetData[] = []
+    for (var i = 0; i < data.length; i++) {
+      let combinedDataMonth: combinedBudgetData = {
+        school: data[i].school,
+        date: data[i].date,
+        accounting: data[i].accounting,
+        oldAccounting: oldData[i].accounting,
+        cumulativeAccounting: data[i].cumulativeAccounting,
+        cumulativeOldAccounting: oldData[i].cumulativeAccounting,
+        accountingPrediction: data[i].accountingPrediction,
+        cumulativeAccountingPrediction: data[i].cumulativeAccountingPrediction,
+        budget: data[i].budget,
+        oldBudget: oldData[i].budget,
+        uncertainty: data[i].uncertainty,
+        cumulativeUncertainty: data[i].cumulativeUncertainty,
+      }
+      combinedData.push(combinedDataMonth)
+    }
+    return combinedData
+  }
+
+  const combinedData = combineData(props.data, props.oldData)
 
   return (
     <div className={styles.container}>
       <ResponsiveContainer width="95%" height={600}>
-        <ComposedChart className={styles.lineChart} data={props.data} margin={{ top: 20, right: 20, bottom: 0, left: 20 } }>
+        <ComposedChart className={styles.lineChart} data={combinedData} margin={{ top: 20, right: 20, bottom: 0, left: 20 } }>
 
+          {/* Uncertainty areas */}
           <Area type="monotone" dataKey="uncertainty" name="Usikkerhet" stroke="#8884d8" fill="blue" opacity={0.2} hide={hideAccounting}  />
-
           <Area type="monotone" dataKey="cumulativeUncertainty" name="Total usikkerhet" stroke="#8884d8" fill="red" opacity={0.2} hide={hideCumulativeAccounting} />
 
+          {/* Old accounting */}
+          <Line strokeWidth="4" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false}/>
+          <Line strokeWidth="4" type="monotone" dataKey="cumulativeOldAccounting" stroke="red" strokeOpacity="0.4" name="Fjorårets Totalregnskap" hide={hideCumulativeOldAccounting} dot={false}/>
+
+          {/* Current Accounting */}
           <Line strokeWidth="4" type="monotone" dataKey="accounting" stroke="blue" name="Regnskap" hide={hideAccounting} 
             dot={{fill:"blue", r:4}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
-
           <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccounting" stroke="red" name="Totalregnskap" hide={hideCumulativeAccounting} 
             dot={{fill:"red",r:4}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
-
+          
+          {/* Accounting prediction */}
           <Line strokeWidth="4" type="monotone" dataKey="accountingPrediction" name="Regnskapsprognose" stroke="blue" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideAccounting} 
             dot={{fill:"blue",r:4, opacity:0.6}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
-
           <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccountingPrediction" name="Total regnskapsprognose" stroke="red" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideCumulativeAccounting} 
             dot={{fill:"red", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
-
+          
+          {/* Budget */}
           <Line strokeWidth="3" type="monotone" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
             dot={false} hide={hideBudget}/>
 
