@@ -19,9 +19,10 @@ a {
 .recharts-legend-item {
   cursor: pointer;
 }
+
 .legend-item-0,
 .legend-item-1,
-.legend-item-4,
-.legend-item-5 {
+.legend-item-6,
+.legend-item-7 {
   display: none !important;
 }

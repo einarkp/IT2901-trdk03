@@ -20,6 +20,23 @@ export type TotalBudgetData = {
   amountPrediction: number | null;
   budgetPrediction: number | null;
 }
+
+export interface combinedBudgetData {
+  school: number;
+  date: Date;
+  accounting: number | null;
+  oldAccounting: number | null;
+  cumulativeAccounting: number | null;
+  cumulativeOldAccounting: number | null;
+  accountingPrediction: number | null;
+  cumulativeAccountingPrediction: number | null;
+  budget: any;
+  oldBudget: any;
+  uncertainty: (number | null)[];
+  cumulativeUncertainty: (number | null)[];
+
+}
+
 export type User = {
   username: string,
   schoolID: string | number,
