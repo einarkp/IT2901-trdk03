@@ -1,7 +1,7 @@
 import { spawn } from 'child_process'
 import React, { useEffect, useState } from 'react'
 import styles from '../styles/BudgetInfo.module.css'
-import { longMonthFormatter } from '../utils/DateFormaters'
+import { longMonthFormatter } from '../utils/Formatters'
 
 
 export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {

@@ -2,9 +2,10 @@ import React from 'react'
 import { SemesterSelectorData } from '../Interfaces'
 import ContainerStyle from '../styles/GraphContainer.module.css'
 import PupilSemsterGraph from './PupilSemesterGraph'
+import PupilSidePanel from './PupilSidePanel'
 import SemesterSelector from './SemesterSelector'
 
-export default function PupilGraphContainer(props: { data: any, currentSemester: string, semesterSelector: any, semesterSelectorData: SemesterSelectorData, maxAmount: number }) {
+export default function PupilGraphContainer(props: { data: any, currentSemester: string, semesterSelector: any, semesterSelectorData: SemesterSelectorData, maxAmount: number, allPupilDataMap: any }) {
 
     return (
         <div className={ContainerStyle.container}>
@@ -15,7 +16,7 @@ export default function PupilGraphContainer(props: { data: any, currentSemester:
                 <PupilSemsterGraph data={props.data} maxAmount={props.maxAmount} />
             </div>
             <div className={ContainerStyle.info}>
-                <div>info</div>
+                <PupilSidePanel allPupilDataMap={props.allPupilDataMap} currentSemester={props.currentSemester} semesterSelectorData={props.semesterSelectorData} />
             </div>
         </div>
     )
