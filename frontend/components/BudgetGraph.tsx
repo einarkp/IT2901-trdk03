@@ -3,7 +3,7 @@ import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContain
 import { DataKey } from 'recharts/types/util/types';
 import { combinedBudgetData, GraphDataProps } from '../Interfaces';
 import styles from '../styles/BudgetGraph.module.css'
-import {shortMonthFormatter, longMonthFormatter, amountFormatter} from "../utils/DateFormaters"
+import {shortMonthFormatter, longMonthFormatter, amountFormatter} from "../utils/Formatters"
 
 interface uncertainty {
   school: number;

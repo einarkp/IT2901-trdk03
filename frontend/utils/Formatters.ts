@@ -14,3 +14,8 @@ export const amountFormatter = (amount: number) => {  // Formats number to compa
     const formatter = Intl.NumberFormat('no', { notation: 'compact' });
     return formatter.format(amount)
 }
+
+export const splitAmountFormatter = (amount: number) => {  // Formats number to split format, e.g. 27662930 --> 27 662 930  
+    if (Number.isInteger(amount)) return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    else return amount
+}

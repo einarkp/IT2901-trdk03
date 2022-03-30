@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 10%;
+  }
+
+.topText{
+    font-weight: bold;
+    font-size: 22px;
+    margin-bottom: 5px;
+  }
+
+  .infoTable{
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+  }

@@ -10,18 +10,19 @@ export default function Pupils() {
   const [allPupilDataMap, setAllPupilDataMap] = useState(new Map())
   const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale.
 
-  function createAllPupilGraphData(data: any) {
+  function createAllPupilGraphData(pupilData: any, budgetData: any) {
     // Create a Map where key values are date strings (Mon Aug 01 2022 for autumn, Mon Jan 01 2018 for spring), and
     // corresponding values are arrays of objects like this:
-    // {pupils: 170, spesped: 1, grade: 8, gradeLabel: "8. Trinn"}
+    // {pupils: 170, spesped: 1, grade: 8, gradeLabel: "8. Trinn", budget: 123123123}
     // this allows easily changing between semesters and getting the corresponding data.
     const availableSemesters: string[] = []
     const allPupilDataMap = new Map();
     let currentMax = 0
-    data.forEach((pupilObject: PupilBackendObject) => {
+    pupilData.forEach((pupilObject: PupilBackendObject) => {
       const year = new Date(pupilObject.year).getFullYear()
       const springDate = pupilObject.spring != 0 ? new Date(year, 0, 1).toDateString() : null
       const autumnDate = pupilObject.autumn != 0 ? new Date(year, 7, 1).toDateString() : null
+      const budgetObject = budgetData.find((budgetObject: { date: any }) => new Date(budgetObject.date).getFullYear() == year)
       if (pupilObject.spring > currentMax) currentMax = pupilObject.spring
       if (pupilObject.autumn > currentMax) currentMax = pupilObject.autumn
       if (springDate != null && !allPupilDataMap.has(springDate)) {
@@ -29,7 +30,8 @@ export default function Pupils() {
           pupils: pupilObject.spring,
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
-          gradeLabel: pupilObject.grade + ". Trinn"
+          gradeLabel: pupilObject.grade + ". Trinn",
+          budget: budgetObject ? budgetObject.amount : null
         }]);
       }
       else if (springDate != null) {
@@ -37,7 +39,8 @@ export default function Pupils() {
           pupils: pupilObject.spring,
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
-          gradeLabel: pupilObject.grade + ". Trinn"
+          gradeLabel: pupilObject.grade + ". Trinn",
+          budget: budgetObject ? budgetObject.amount : null
         });
       }
 
@@ -46,14 +49,16 @@ export default function Pupils() {
           pupils: pupilObject.autumn,
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
-          gradeLabel: pupilObject.grade + ". Trinn"
+          gradeLabel: pupilObject.grade + ". Trinn",
+          budget: budgetObject ? budgetObject.amount : null
         }]);
       } else if (autumnDate != null) {
         allPupilDataMap.get(autumnDate).push({
           pupils: pupilObject.autumn,
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
-          gradeLabel: pupilObject.grade + ". Trinn"
+          gradeLabel: pupilObject.grade + ". Trinn",
+          budget: budgetObject ? budgetObject.amount : null
         });
       }
 
@@ -74,10 +79,17 @@ export default function Pupils() {
     // TODO: get schoolId from logged in user object, do this for "totaloversikt" also
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-    getData("schools/" + params.id + "/pupils?year")
+    getData("schools/" + params.id + "/pupils") // Get all pupil data for school. 
       .then((response) => {
         const pupilData = response.data
-        createAllPupilGraphData(pupilData)
+        // Get all budget values for school.
+        getData("schools/" + params.id + "/budgets")
+          .then((response) => {
+            const budgetData = response.data
+            createAllPupilGraphData(pupilData, budgetData)
+          })
+          .catch((e) => { console.log(e) });
+
       })
       .catch((e) => { console.log(e) });
   }, [])
@@ -85,13 +97,17 @@ export default function Pupils() {
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      {availableSemesters.allSemesters.length != 0 && maxAmount != 0 ?
+      {availableSemesters.allSemesters.length != 0
+        && maxAmount != 0
+        && currentSemester != ""
+        && allPupilDataMap.size != 0 ?
         <PupilGraphContainer
           data={allPupilDataMap.get(currentSemester)}
           currentSemester={currentSemester}
           semesterSelector={setCurrentSemester}
           semesterSelectorData={availableSemesters}
           maxAmount={maxAmount}
+          allPupilDataMap={allPupilDataMap}
         /> : null}
 
     </div>

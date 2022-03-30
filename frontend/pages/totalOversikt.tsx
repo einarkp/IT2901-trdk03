@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import GraphContainer from '../components/GraphContainer'
 import { GraphInfoProps, AllDataApiResponse } from '../Interfaces';
 import { getData } from '../utils/APIUtils';
-import { longMonthFormatter } from "../utils/DateFormaters"
+import { longMonthFormatter } from "../utils/Formatters"
 
 export default function TotalOversikt() {
 
