@@ -93,3 +93,8 @@ export type AllDataApiResponse = {
   Prediction: {school: number, date: string, amount: number}[]
 };
 
+export type PercentageProps = {
+  amount: any,
+  percent: number,
+}
+

@@ -41,10 +41,10 @@ const Header: React.FC = observer(() => {
       </div>
       <ul>
         <li>
-          <Link  href={{ pathname: '/totalOversikt', query: { id: store.activeUser?.schoolID, year: 2022 } }}> Totaloversikt </Link>
+          <Link  href={{ pathname: '/totalOversikt', query: { id: 11010/*store.activeUser?.schoolID*/} }}> Totaloversikt </Link>
         </li>
         <li>
-          <Link href='/elever'> Elever </Link>
+          <Link  href={{ pathname: '/elever', query: { id: 11010/*store.activeUser?.schoolID*/} }}> Elever </Link>
         </li>
         <li>
           <ClickAwayListener onClickAway={handleClickAway}>

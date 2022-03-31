@@ -1,6 +1,6 @@
 .container {
-  min-width: 70%;
-  height: 80vh;
+  min-width: 75%;
+  height: 82vh;
   display: flex;
   flex-direction: row;
 }
@@ -17,8 +17,11 @@
   margin: 0 auto;
   height: 40px;
 }
+.graphChart {
+  height: 100%;
+}
 .info {
-  width: 28vw;
+  width: 30vw;
   height: 100%;
   border-width: 2px 2px 2px 0;
   border-style: solid;
