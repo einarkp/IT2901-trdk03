@@ -217,8 +217,8 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
           <Area type="monotone" dataKey="cumulativeUncertainty" name="Total usikkerhet" stroke="#8884d8" fill="red" opacity={0.2} hide={hideCumulativeAccounting} />
 
           {/* Old accounting */}
-          <Line strokeWidth="4" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false}/>
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeOldAccounting" stroke="red" strokeOpacity="0.4" name="Fjorårets Totalregnskap" hide={hideCumulativeOldAccounting} dot={false}/>
+          <Line strokeWidth="4" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false} activeDot={false}/>
+          <Line strokeWidth="4" type="monotone" dataKey="cumulativeOldAccounting" stroke="red" strokeOpacity="0.4" name="Fjorårets Totalregnskap" hide={hideCumulativeOldAccounting} dot={false} activeDot={false}/>
 
           {/* Current Accounting */}
           <Line strokeWidth="4" type="monotone" dataKey="accounting" stroke="blue" name="Regnskap" hide={hideAccounting} 

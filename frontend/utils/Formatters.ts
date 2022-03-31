@@ -19,3 +19,11 @@ export const splitAmountFormatter = (amount: number) => {  // Formats number to 
     if (Number.isInteger(amount)) return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     else return amount
 }
+export const singleDecimalFormatter = (num: number) => {  // Takes in decimal number and returns string with 1 decimal, e.g. 10.3324 --> 10.3
+  var rounded = Math.round(num * 10) / 10
+  return rounded.toFixed(1)
+}
+
+export const percentChange = (num1: number, num2: number) => {  // Calculates percentage difference between num1 and num2, e.g. 10, 20 --> 100.0
+  return ((num2 - num1) /num1 )*100
+}
