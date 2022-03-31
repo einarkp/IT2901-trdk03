@@ -126,8 +126,21 @@ class PupilsView(viewsets.ViewSet):
         # }
         for pupils in request.data:
             correspondingSchool = School.objects.filter(pk=pupils["schoolId"]).first()
-
             date2add = datetime.date(pupils["year"], 1, 1)
+
+            tempAutumn = pupils["autumn"]
+            tempSpring = pupils["spring"]
+            tempAutumn = [i for i in tempAutumn if i != 0]
+            tempSpring = [i for i in tempSpring if i != 0]
+            if len(tempAutumn) > 3:
+                tempAutumn.remove(max(tempAutumn))
+                tempAutumn.remove(min(tempAutumn))
+                tempSpring.remove(max(tempSpring))
+                tempSpring.remove(min(tempSpring))
+            averageAutumn = int(sum(tempAutumn)/len(tempAutumn))
+            averageSpring = int(sum(tempSpring)/len(tempSpring))
+            Pupils.objects.create(school=correspondingSchool, year=date2add, spring=averageSpring, autumn=averageAutumn, grade=0)
+   
 
             # "pupils" data object contain arrays of amount of pupils for spring/autumn, iterate array and add pupils to corresponding grade based on index in array.
             #  Delete old entry if it exists, date/year&grade combo is unique (year field in db is a date object), should only ever exist one entry
@@ -137,6 +150,10 @@ class PupilsView(viewsets.ViewSet):
                 springGrade = x+1
                 Pupils.objects.filter(year=datetime.date(pupils["year"], 1, 1), grade=springGrade, school=correspondingSchool).delete()
                 Pupils.objects.create(school=correspondingSchool, year=date2add, spring=springPupils, autumn=autumnPupils, grade=springGrade)
+            
+
+
+
 
         return Response("Probably added some Pupil values")
 
