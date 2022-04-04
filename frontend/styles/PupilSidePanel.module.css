@@ -1,19 +1,49 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    padding: 10%;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 10%;
+}
 
-.topText{
-    font-weight: bold;
-    font-size: 22px;
-    margin-bottom: 5px;
-  }
+.topText {
+  font-weight: bold;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
 
-  .infoTable{
-    margin-top: 20px;
-    width: 100%;
-    border-collapse: collapse;
-  }
+.infoTable {
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inputField {
+  width: 55px;
+  height: 25px;
+  font-size: 0.8em;
+}
+
+.button {
+  font-weight: 400;
+  font-size: 0.8em;
+  height: 45px;
+  width: 150px;
+  border: solid 1px grey;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: rgb(199, 199, 199);
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+}
+
+.changePupilsButton {
+  margin-top: 30px;
+}

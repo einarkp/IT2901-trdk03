@@ -10,6 +10,23 @@ export default function Pupils() {
   const [allPupilDataMap, setAllPupilDataMap] = useState(new Map())
   const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale.
 
+  function refreshData() {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+    getData("schools/" + params.id + "/pupils") // Get all pupil data for school. 
+      .then((response) => {
+        const pupilData = response.data
+        // Get all budget values for school.
+        getData("schools/" + params.id + "/budgets")
+          .then((response) => {
+            const budgetData = response.data
+            createAllPupilGraphData(pupilData, budgetData)
+          })
+          .catch((e) => { console.log(e) });
+      })
+      .catch((e) => { console.log(e) });
+  }
+
   function createAllPupilGraphData(pupilData: any, budgetData: any) {
     // Create a Map where key values are date strings (Mon Aug 01 2022 for autumn, Mon Jan 01 2018 for spring), and
     // corresponding values are arrays of objects like this:
@@ -19,6 +36,7 @@ export default function Pupils() {
     const allPupilDataMap = new Map();
     let currentMax = 0
     pupilData.forEach((pupilObject: PupilBackendObject) => {
+      if (pupilObject.grade === 0) return;
       const year = new Date(pupilObject.year).getFullYear()
       const springDate = pupilObject.spring != 0 ? new Date(year, 0, 1).toDateString() : null
       const autumnDate = pupilObject.autumn != 0 ? new Date(year, 7, 1).toDateString() : null
@@ -31,7 +49,8 @@ export default function Pupils() {
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
           gradeLabel: pupilObject.grade + ". Trinn",
-          budget: budgetObject ? budgetObject.amount : null
+          budget: budgetObject ? budgetObject.amount : null,
+          school: pupilObject.school
         }]);
       }
       else if (springDate != null) {
@@ -40,7 +59,8 @@ export default function Pupils() {
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
           gradeLabel: pupilObject.grade + ". Trinn",
-          budget: budgetObject ? budgetObject.amount : null
+          budget: budgetObject ? budgetObject.amount : null,
+          school: pupilObject.school
         });
       }
 
@@ -50,7 +70,8 @@ export default function Pupils() {
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
           gradeLabel: pupilObject.grade + ". Trinn",
-          budget: budgetObject ? budgetObject.amount : null
+          budget: budgetObject ? budgetObject.amount : null,
+          school: pupilObject.school
         }]);
       } else if (autumnDate != null) {
         allPupilDataMap.get(autumnDate).push({
@@ -58,7 +79,8 @@ export default function Pupils() {
           spesped: 1, // TODO: add spesped when data exists
           grade: pupilObject.grade,
           gradeLabel: pupilObject.grade + ". Trinn",
-          budget: budgetObject ? budgetObject.amount : null
+          budget: budgetObject ? budgetObject.amount : null,
+          school: pupilObject.school
         });
       }
 
@@ -73,7 +95,6 @@ export default function Pupils() {
     setCurrentSemester(availableSemesters[availableSemesters.length - 1])
     setAllPupilDataMap(allPupilDataMap)
   }
-
 
   useEffect(() => {
     // TODO: get schoolId from logged in user object, do this for "totaloversikt" also
@@ -108,6 +129,7 @@ export default function Pupils() {
           semesterSelectorData={availableSemesters}
           maxAmount={maxAmount}
           allPupilDataMap={allPupilDataMap}
+          refreshData={refreshData}
         /> : null}
 
     </div>
