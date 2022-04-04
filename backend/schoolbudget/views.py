@@ -118,7 +118,7 @@ class PupilsView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def post(self, request, school_pk=None):  # Add or update pupil entry in db
-        # from frontend: pupilObject = {
+        # from frontend, list of objects like this: pupilObject = {
         #     schoolId: 123,
         #     year: 2022,
         #     autumn: [123, 12, 143, 12, 123, 123, 123, 0, 0, 0],
@@ -139,8 +139,8 @@ class PupilsView(viewsets.ViewSet):
                 tempSpring.remove(min(tempSpring))
             averageAutumn = int(sum(tempAutumn)/len(tempAutumn))
             averageSpring = int(sum(tempSpring)/len(tempSpring))
+            Pupils.objects.filter(school=correspondingSchool, year=date2add, grade=0).delete()
             Pupils.objects.create(school=correspondingSchool, year=date2add, spring=averageSpring, autumn=averageAutumn, grade=0)
-   
 
             # "pupils" data object contain arrays of amount of pupils for spring/autumn, iterate array and add pupils to corresponding grade based on index in array.
             #  Delete old entry if it exists, date/year&grade combo is unique (year field in db is a date object), should only ever exist one entry
@@ -148,13 +148,10 @@ class PupilsView(viewsets.ViewSet):
                 springPupils = pupils["spring"][x]
                 autumnPupils = pupils["autumn"][x]
                 springGrade = x+1
-                Pupils.objects.filter(year=datetime.date(pupils["year"], 1, 1), grade=springGrade, school=correspondingSchool).delete()
+
+                Pupils.objects.filter(year=datetime.date(pupils["year"], 1, 1), grade=springGrade, school=correspondingSchool).delete()  
                 Pupils.objects.create(school=correspondingSchool, year=date2add, spring=springPupils, autumn=autumnPupils, grade=springGrade)
             
-
-
-
-
         return Response("Probably added some Pupil values")
 
 
@@ -227,14 +224,6 @@ class PredicitonView(viewsets.ViewSet):
         # 12 calculated values as predictions (this involved replacing existing predictions with date
         # greater than latest accounting date).
 
-        # Maybe a better idea would be to handle predictions on a
-        # year to year basis? Easier to continually update?
-        # NOTE: There are 100% issues with this implementation, just can't think of them now...
-        # something to do with a lack of accounting data from users even though it's a new year
-        # and they want to see 12 values. This implementation would not take that into account (maybe?).
-        # A fix would be to do a date check for if it's december/january then just set the
-        # dates for the predictions for the upcoming year (month 1,2,3,4,5,6,7,8,9,10,11,12)...
-
         allAccountingValues = []
         accountings = Accounting.objects.filter(school=school_pk)
         for accounting in accountings:
@@ -254,7 +243,6 @@ class PredicitonView(viewsets.ViewSet):
         # Add the new values from arima to prediction table, add year and month they belong to (date-object)
         # day is irrelevant, start with latestAccountingDate+1month, then increment month
         safeStartDate = date(latestAccountingDate.year, latestAccountingDate.month, 12)
-        # TODO: NEEDS TESTING...
         currentPredictionDate = safeStartDate + relativedelta(months=1)
         correspondingSchool = School.objects.filter(pk=school_pk).first()
 

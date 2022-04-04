@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { SemesterSelectorData } from "../Interfaces";
 import styles from '../styles/PupilSidePanel.module.css'
+import { UpdateDatabase } from "../utils/APIUtils";
 import { splitAmountFormatter } from "../utils/Formatters";
 
-export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData }) {
+export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData, refreshData: any }) {
     const [budgetChange, setBudgetChange] = useState(Number.POSITIVE_INFINITY)
     const [budgetChangePercent, setBudgetChangePercent] = useState(0)
     const [currentBudget, setCurrentBudget] = useState("")
@@ -15,6 +16,44 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
     const [spespedChange, setSpespedChange] = useState(Number.POSITIVE_INFINITY)
     const [spespedChangePercent, setSpespedChangePercent] = useState(0)
     const [isPrediction, setIsPrediction] = useState(false)
+    const [showPupilForm, setShowPupilForm] = useState(false)
+    const [pupilChangeArr, setPupilChangeArr] = useState(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
+    const [spespedChangeArr, setSpespedChangeArr] = useState(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
+    const [inputFields, setInputFields] = useState(Array.from(Array(props.allPupilDataMap.get(props.currentSemester).length), () => ({ pupil: '', spesped: '' })))
+    const [predictedBudget, setPredictedBudget] = useState(0)
+    const [predictedPercentChange, setPredictedPercentChange] = useState(0)
+    const [rerender, setRerender] = useState(false)
+    const [successMessage, setSuccessMessage] = useState("")
+    const [errorMessage, setErrorMessage] = useState("")
+    const [showUnsavedDataMessage, setShowUnsavedDataMessage] = useState(false)
+    const prevAllPupilDataMap = usePrevious(props.allPupilDataMap)
+    const valueOfPupil = 50000
+    const valueOfSpesped = 100000
+
+    function usePrevious(value: any) {
+        const ref = useRef();
+        useEffect(() => {
+            ref.current = value;
+        });
+        return ref.current;
+    }
+
+    useEffect(() => {
+        // If we are in the displayed autumn semester or the displayed autumn semester is in the future, allow changing pupil amount
+        const now = new Date()
+        const currentSemesterDate = new Date(props.currentSemester)
+        if (currentSemesterDate.getMonth() != 7) setIsPrediction(false)
+        else if (now.getFullYear() <= currentSemesterDate.getFullYear()) setIsPrediction(true)
+        calculateChange()
+
+        // After updating pupil amount and getting new data, continue showing the form.
+        // @ts-ignore
+        if (props.allPupilDataMap.get(props.currentSemester) != prevAllPupilDataMap?.get(props.currentSemester) && prevAllPupilDataMap?.get(props.currentSemester)) {
+            setShowPupilForm(true)
+        }
+        else setShowPupilForm(false)
+
+    }, [props.currentSemester, props.allPupilDataMap])
 
     function calculateChange() {
         // calculate budget change:
@@ -83,21 +122,19 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
         }
     }
 
-    useEffect(() => {
-        // If we are in the displayed semester or the displayed semester is in the future, allow changing pupil amount
-        const now = new Date()
-        const nowMonth = now.getMonth() + 1
-        const currentSemesterDate = new Date(props.currentSemester)
-        if (now.getFullYear() < currentSemesterDate.getFullYear()
-            || (now.getFullYear() == currentSemesterDate.getFullYear() && nowMonth < 8)) setIsPrediction(true)
-        else setIsPrediction(false)
-        calculateChange()
-    }, [props.currentSemester])
+    function resetPupilForm() {
+        setInputFields(Array.from(Array(props.allPupilDataMap.get(props.currentSemester).length), () => ({ pupil: '', spesped: '' })))
+        setPupilChangeArr(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
+        setSpespedChangeArr(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
+        setPredictedBudget(0)
+        setPredictedPercentChange(0)
+        setShowUnsavedDataMessage(false)
+    }
 
 
-    return <>
+    const InfoPanel = () => (
         <div className={styles.container}>
-            {isPrediction ? <span className={styles.topText}>Predikert Budsjett</span> : <span className={styles.topText}>Budjsett og endringer</span>}
+            {isPrediction ? <span className={styles.topText}>Predikert budsjett</span> : <span className={styles.topText}>Budjsett og endringer</span>}
             <table className={styles.infoTable}>
                 <tbody>
                     <tr>
@@ -106,7 +143,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                     </tr>
                     <tr>
                         <td>Endring {previousYear != 0 ? " (" + previousYear + ")" : null}</td>
-                        {budgetChange > 0 && budgetChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#2F8A04" }}>{"+" + splitAmountFormatter(budgetChange) + "kr (" + budgetChangePercent + "%)"}</td> : null}
+                        {budgetChange > 0 && budgetChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#3A933E" }}>{"+" + splitAmountFormatter(budgetChange) + "kr (" + budgetChangePercent + "%)"}</td> : null}
                         {budgetChange < 0 ? <td style={{ color: "red" }}>{splitAmountFormatter(budgetChange) + "kr (" + budgetChangePercent + "%)"}</td> : null}
                         {budgetChange === 0 ? <td>{budgetChange}</td> : null}
                         {budgetChange === Number.POSITIVE_INFINITY ? <td>{"Ingen data"}</td> : null}
@@ -118,7 +155,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                     </tr>
                     <tr>
                         <td>Endring</td>
-                        {pupilChange > 0 && pupilChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#2F8A04" }}>{"+" + pupilChange + " (" + pupilChangePercent + "%)"}</td> : null}
+                        {pupilChange > 0 && pupilChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#3A933E" }}>{"+" + pupilChange + " (" + pupilChangePercent + "%)"}</td> : null}
                         {pupilChange < 0 ? <td style={{ color: "red" }}>{pupilChange + " (" + pupilChangePercent + "%)"}</td> : null}
                         {pupilChange === 0 ? <td>{pupilChange}</td> : null}
                         {pupilChange === Number.POSITIVE_INFINITY ? <td>{"Ingen data"}</td> : null}
@@ -130,14 +167,207 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                     </tr>
                     <tr>
                         <td>Endring</td>
-                        {spespedChange > 0 && spespedChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#2F8A04" }}>{"+" + spespedChange + " (" + spespedChangePercent + "%)"}</td> : null}
+                        {spespedChange > 0 && spespedChange < Number.POSITIVE_INFINITY ? <td style={{ color: "#3A933E" }}>{"+" + spespedChange + " (" + spespedChangePercent + "%)"}</td> : null}
                         {spespedChange < 0 ? <td style={{ color: "red" }}>{spespedChange + " (" + spespedChangePercent + "%)"}</td> : null}
                         {spespedChange === 0 ? <td>{spespedChange}</td> : null}
                         {spespedChange === Number.POSITIVE_INFINITY ? <td>{"Ingen data"}</td> : null}
                     </tr>
-
                 </tbody>
             </table>
+            <div className={styles.changePupilsButton}>
+                {isPrediction ? <button onClick={() => { setShowPupilForm(true); resetPupilForm() }} className={styles.button}>Endre elevantall</button> : null}
+            </div>
         </div>
-    </>
+    )
+
+    function computePredictedBudget() {
+        if (currentBudget == "" || currentBudget == "Ingen data") return
+        // Get all old values, then replace with new values if exists, compute difference, compute new budget
+        const oldPupilSum = props.allPupilDataMap.get(props.currentSemester).map((i: { pupils: number; }) => i.pupils).reduce((a: number, b: number) => a + b);
+        const oldSpespedSum = props.allPupilDataMap.get(props.currentSemester).map((i: { spesped: number; }) => i.spesped).reduce((a: number, b: number) => a + b);
+        let newPupilSum = 0
+        let newSpespedSum = 0
+        inputFields.forEach((inputObject, index) => {
+            if (inputObject.pupil == "") newPupilSum += props.allPupilDataMap.get(props.currentSemester)[index].pupils
+            else newPupilSum += Number(inputObject.pupil)
+            if (inputObject.spesped == "") newSpespedSum += props.allPupilDataMap.get(props.currentSemester)[index].spesped
+            else newSpespedSum += Number(inputObject.spesped)
+        })
+        const budgetPupilChange = (newPupilSum - oldPupilSum) * valueOfPupil
+        const budgetSpespedChange = (newSpespedSum - oldSpespedSum) * valueOfSpesped
+        const totalChange = budgetPupilChange + budgetSpespedChange
+        const previousBudget = Number(currentBudget.replace("kr", "").replace(/\s/g, ""))
+        const newBudgetValue = previousBudget + totalChange
+        const percentchange = (newBudgetValue - previousBudget) / previousBudget * 100.0
+        setPredictedPercentChange(Number(percentchange.toFixed(1)))
+        setPredictedBudget(newBudgetValue)
+    }
+
+    function handleClickAwayPupil(value: string, index: number) {
+        if (value === "") return
+        if (!showUnsavedDataMessage) setShowUnsavedDataMessage(true)
+        let oldValue = props.allPupilDataMap.get(props.currentSemester)[index].pupils
+        let tempChangeArrCopy = pupilChangeArr
+        tempChangeArrCopy[index] = Number(Number(value) - oldValue)
+        computePredictedBudget()
+        setPupilChangeArr(tempChangeArrCopy)
+        setRerender(!rerender)
+    }
+
+    function handleClickAwaySpesped(value: string, index: number) {
+        if (value === "") return
+        if (!showUnsavedDataMessage) setShowUnsavedDataMessage(true)
+        let oldValue = props.allPupilDataMap.get(props.currentSemester)[index].spesped
+        let tempChangeArrCopy = spespedChangeArr
+        tempChangeArrCopy[index] = Number(Number(value) - oldValue)
+        computePredictedBudget()
+        setSpespedChangeArr(tempChangeArrCopy)
+        setRerender(!rerender)
+    }
+
+    function handlePupilChange(index: number, event: ChangeEvent<HTMLInputElement>) {
+        let data = [...inputFields];
+        const value = Math.abs(Math.floor(Number(event.target.value)));
+        data[index].pupil = String(value);
+        setInputFields(data);
+    }
+
+    function handleSpespedChange(index: number, event: ChangeEvent<HTMLInputElement>) {
+        let data = [...inputFields];
+        const value = Math.abs(Math.floor(Number(event.target.value)));
+        data[index].spesped = String(value);
+        setInputFields(data);
+    }
+
+    async function saveForm() {  // TODO: add support for spesped when this exists in backend.
+        // Updates pupil values in db, pad list with 0's for grades that do not exist.
+        setSuccessMessage("")
+        setErrorMessage("")
+        let containsZero = inputFields.find(inputField => inputField.pupil === "0"); // There needs to be pupils in every class.
+        if (containsZero) {
+                setErrorMessage("Elevantall kan ikke være 0")
+                setTimeout(() => { setErrorMessage("") }, 5000);
+                return
+            }
+            
+        const oldAutmnValues = props.allPupilDataMap.get(props.currentSemester)
+        const springDate = new Date("01-01-" + new Date(props.currentSemester).getFullYear()).toDateString()
+        const oldSpringValues = props.allPupilDataMap.get(springDate)
+        const object2send = {
+            schoolId: oldAutmnValues[0].school,
+            year: new Date(props.currentSemester).getFullYear(),
+            autumn: new Array(10).fill(0),
+            spring: new Array(10).fill(0)
+        }
+        oldAutmnValues.forEach((autumnObject: { grade: number }, index: number) => {
+            let currentIndex = autumnObject.grade - 1
+            if (inputFields[index].pupil === "") object2send.autumn[currentIndex] = oldAutmnValues[index].pupils
+            else object2send.autumn[currentIndex] = Number(inputFields[index].pupil)
+            object2send.spring[currentIndex] = oldSpringValues[index].pupils
+        })
+        await UpdateDatabase("pupils", [object2send]).then((response) => {
+            if (response == "Probably added some Pupil values") {
+                const newBudgetObject = {
+                    schoolId: oldAutmnValues[0].school,
+                    year: new Date(props.currentSemester).getFullYear(),
+                    month: 1,
+                    amount: predictedBudget
+                }
+                UpdateDatabase("budgets", [newBudgetObject]).then((response) => {
+                    if (response == "Probably added some budgets") {
+                        resetPupilForm()  // This can be replaced with setPredictedPercentChange(0) to still include pupil change +- numbers, and predicted budget.
+                        setShowUnsavedDataMessage(false)
+                        setSuccessMessage("Elevantallet og budsjettet ble oppdatert!")
+                        setTimeout(() => { setSuccessMessage("") }, 3000);
+                        props.refreshData()
+                    } else {
+                        setErrorMessage("Noe gikk galt")
+                        setTimeout(() => { setErrorMessage("") }, 5000);
+                    }
+                })
+
+            } else {
+                setErrorMessage("Noe gikk galt")
+                setTimeout(() => { setErrorMessage("") }, 5000);
+            }
+        }).catch((error) => {
+            console.error(error)
+            setErrorMessage("Noe gikk galt")
+            setTimeout(() => { setErrorMessage("") }, 5000);
+        })
+    }
+
+    return (
+        <div>
+            {showPupilForm ? <div className={styles.container}>
+                <span className={styles.topText}>Endre elevantall</span>
+                <table >
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td>Total</td>
+                            <td>Spesped</td>
+                        </tr>
+                        {inputFields.map((input, index) => {
+                            return (
+                                <tr key={index}>
+                                    <td >{props.allPupilDataMap.get(props.currentSemester)[index].gradeLabel + ":"}</td>
+                                    <td>
+                                        <input className={styles.inputField} value={input.pupil} type="number" min="1" step="1"
+                                            placeholder={props.allPupilDataMap.get(props.currentSemester)[index].pupils ? props.allPupilDataMap.get(props.currentSemester)[index].pupils : "0"}
+                                            onBlur={(e: React.FormEvent<HTMLInputElement>) => { handleClickAwayPupil(e.currentTarget.value, index) }}
+                                            onChange={event => handlePupilChange(index, event)}
+                                        />
+                                        <span style={{ marginLeft: "10px" }}>
+                                            {pupilChangeArr[index] > 0 ? <span style={{ color: "#3A933E" }}>{"+" + pupilChangeArr[index]}</span> : null}
+                                            {pupilChangeArr[index] < 0 ? <span style={{ color: "red" }}>{pupilChangeArr[index]}</span> : null}
+                                            {pupilChangeArr[index] == 0 ? <span style={{ color: "#a6a6a6" }} >{"+" + pupilChangeArr[index]}</span> : null}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input value={input.spesped} type="number" min="0" className={styles.inputField} step="1"
+                                            placeholder={props.allPupilDataMap.get(props.currentSemester)[index].spesped ? props.allPupilDataMap.get(props.currentSemester)[index].spesped : "0"}
+                                            onBlur={(e: React.FormEvent<HTMLInputElement>) => { handleClickAwaySpesped(e.currentTarget.value, index) }}
+                                            onChange={event => handleSpespedChange(index, event)}
+                                        />
+                                        <span style={{ marginLeft: "10px" }}>
+                                            {spespedChangeArr[index] > 0 ? <span style={{ color: "#3A933E" }}>{"+" + spespedChangeArr[index]}</span> : null}
+                                            {spespedChangeArr[index] < 0 ? <span style={{ color: "red" }}>{spespedChangeArr[index]}</span> : null}
+                                            {spespedChangeArr[index] == 0 ? <span style={{ color: "#a6a6a6" }} >{"+" + spespedChangeArr[index]}</span> : null}
+                                        </span>
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+                <table style={{ borderCollapse: "separate", borderSpacing: '0px 15px', marginTop: "20px" }}>
+                    <tbody>
+                        <tr>
+                            <td>Nåværende budsjett:</td>
+                            <td>{currentBudget}</td>
+                        </tr>
+                        <tr>
+                            <td>Predikert budsjett:</td>
+                            <td>{predictedBudget != 0 ? String(splitAmountFormatter(predictedBudget)) + "kr" : null}</td>
+                        </tr>
+                        {predictedBudget != 0 ?
+                            <tr>
+                                <td>Endring: </td>
+                                <td><span style={{ color: predictedPercentChange < 0 ? "red" : "#3A933E" }}>{" " + splitAmountFormatter(predictedBudget - Number(currentBudget.replace("kr", "").replace(/\s/g, ""))) + "kr"} {"(" + predictedPercentChange + "%)"} </span></td>
+                            </tr>
+                            : null}
+                    </tbody>
+                </table>
+                <div className={styles.buttonContainer}>
+                    <button onClick={() => setShowPupilForm(false)} className={styles.button}>Avbryt</button>
+                    <button className={styles.button} onClick={() => saveForm()} >Lagre</button>
+                </div>
+                {successMessage != "" ? <span style={{ color: "#3A933E" }} >{successMessage}</span> : null}
+                {errorMessage != "" ? <span style={{ color: "red" }}>{errorMessage}</span> : null}
+                {showUnsavedDataMessage ? <span >{"(Du har ulagret data)"}</span> : null}
+
+            </div> : <InfoPanel />}
+        </div>
+    )
 }

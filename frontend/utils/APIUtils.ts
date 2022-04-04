@@ -65,8 +65,8 @@ export async function loginRequest(dataBody: {}): Promise<LoginDetails> {
 
 /**
  * Function used to add new data (or update existing data)
- * @param type the type of data being added/updated, e.g. "accountings", "budgets", needs to match the Django URLs
- * @param data array of object/-s containing the data being added, consists at least schoolID, month, year and amount
+ * @param type the type of data being added/updated, e.g. "accountings", "budgets", "pupils" needs to match the Django URLs
+ * @param data array of object/-s containing the data being added, consists at least schoolID, month, year and amount for budgets/predictions
  */
  export async function UpdateDatabase(type:string, data:any): Promise<any> {
   return await axios.post(getAdress()+"schools/"+data[0].schoolId+"/"+type+"/", data, createHeader())
