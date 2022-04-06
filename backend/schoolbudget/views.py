@@ -221,8 +221,7 @@ class PredicitonView(viewsets.ViewSet):
 
     def post(self, request, school_pk=None):
         # Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
-        # 12 calculated values as predictions (this involved replacing existing predictions with date
-        # greater than latest accounting date).
+        # 12 calculated values as predictions. Always replace existing prediction values.
 
         allAccountingValues = []
         accountings = Accounting.objects.filter(school=school_pk)
@@ -236,9 +235,9 @@ class PredicitonView(viewsets.ViewSet):
         # should replace 0.05 with "coefficient
         arimaResults, confResults = arima(allAccountingValues, 12, 0, 1, coefficient)
 
-        # Delete all existing prediction values with date from latest accounting date until now.
+        # Delete all existing prediction values
         latestAccountingDate = Accounting.objects.filter(school=school_pk).latest("date").date
-        Prediction.objects.filter(date__gte=latestAccountingDate, school=school_pk).delete()
+        Prediction.objects.filter(school=school_pk).delete()
 
         # Add the new values from arima to prediction table, add year and month they belong to (date-object)
         # day is irrelevant, start with latestAccountingDate+1month, then increment month
