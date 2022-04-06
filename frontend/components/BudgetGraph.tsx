@@ -233,7 +233,7 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
             dot={{fill:"red", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
           
           {/* Budget */}
-          <Line strokeWidth="3" type="monotone" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
+          <Line strokeWidth="3" type="stepAfter" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
             dot={false} hide={hideBudget}/>
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
