@@ -20,6 +20,9 @@ export default function TotalOversikt() {
     const accountingArr = allData.Accounting
     const predictionArr = allData.Prediction
     const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount : null
+    const budgetChange = allData.BudgetChange.length !== 0 ? allData.BudgetChange[0].amount : null // might need to support multiple changes
+    const updatedBudget = budget + budgetChange // the new budget after applying change
+    console.log("budgetChange", updatedBudget)
     predictionArr.forEach((element: { amount: number; isPrediction: boolean; }) => {  // Need some way of differentiating prediction values
       element.amount = Math.floor(element.amount)
       element.isPrediction = true
@@ -61,21 +64,22 @@ export default function TotalOversikt() {
         cumulativeAccounting: !isPrediction ? currentCumulativeValue : firstPredictionObject.amount === currentAmount ? currentCumulativeValue : null,
         accountingPrediction: isPrediction ? currentAmount : null,
         cumulativeAccountingPrediction: isPrediction ? currentCumulativeValue : null,
-        budget: budget,
+        budget: index < 7 ? budget : budget + budgetChange,
         uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
         cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
       combinedDataArr.push(objectToAdd)
     }
 
+    // update budget based on budget change
     // Set values in right side info panel:
     const highestAccountingMonth = longMonthFormatter(new Date(highestValueObject.date!)).split(" ")[0]
     const LowestAccountingMonth = longMonthFormatter(new Date(lowestValueObject.date!)).split(" ")[0]
-    const relativePercentage = Math.floor((budget / currentCumulativeValue) * 100)
+    const relativePercentage = Math.floor((updatedBudget / currentCumulativeValue) * 100)
     //Checks if it is within fail margin
-    const withinMargin = (currentCumilitaveUpperBound - ((currentCumilitaveUpperBound - currentCumulativeValue) / 2)) > budget
+    const withinMargin = (currentCumilitaveUpperBound - ((currentCumilitaveUpperBound - currentCumulativeValue) / 2)) > updatedBudget
     const sidePanelInfo: GraphInfoProps = {
-      result: budget > currentCumulativeValue,
+      result: updatedBudget > currentCumulativeValue,
       withinMargin: withinMargin,
       resultPercent: relativePercentage,
       bestMonth: lowestValueObject.amount + " (" + LowestAccountingMonth + ")",
