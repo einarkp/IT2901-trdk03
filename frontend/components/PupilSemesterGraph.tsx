@@ -44,8 +44,10 @@ const data = [
 export default function PupilSemsterGraph(props: { data: any, maxAmount:number }) {  // An alternative approach to displaying this is vertically: https://stackoverflow.com/a/66221135/14953338
     return (
         <div className={styles.container} >
-            <ResponsiveContainer width="95%" height={600}>
+            <ResponsiveContainer height={600} width="100%">
                 <BarChart
+                    width={400}
+                    height={600}
                     data={props.data}
                     margin={{
                         top: 20,
@@ -69,7 +71,8 @@ export default function PupilSemsterGraph(props: { data: any, maxAmount:number }
                     <Bar dataKey="pupils"
                         stackId="a"  // <-- NOTE: to see how the chart will look if not stacked bars simply remove "stackId" property from this component.
                         name="Elever"
-                        fill="#5874fc" />
+                        fill="#5874fc"
+                        barSize={30} />
 
                     <Bar dataKey="spesped" stackId="a" name="Spesped" fill="#54c4fc" />
                 </BarChart>
