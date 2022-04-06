@@ -1,10 +1,11 @@
 import { Button } from "@material-ui/core";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useDropzone, FileWithPath, FileRejection } from "react-dropzone";
 import FileUploadStyles from "../styles/FileUpload.module.css"
 import Excel from "exceljs"
 import { CreatePredictions, UpdateDatabase } from "../utils/APIUtils";
 import { RotatingSquare } from "react-loader-spinner";
+import { StoreContext } from '../pages/_app';
 
 export default function FileUpload() {
 
@@ -13,14 +14,16 @@ export default function FileUpload() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false)
-
   let objectsToAddToDb: { type: string; data: { schoolId: number; month: number; year: number; amount: number; }; }[] = []
+  let schoolId: number = 0
+  const store = useContext(StoreContext)
+  if (store.activeUser?.schoolID != 0) schoolId = Number(store.activeUser?.schoolID) // schoolId = 0 means no connected school
 
   function processExcelRow(currentDataRow: any, metaInfoArr: string[], dataType: string, dataTypeColumnName: string) {
-    const TESTSCHOOLID = 11010  // For normal users this will be obtainable from state.
+    if (schoolId === 0) throw "Brukeren din er ikke knyttet til en skole, kontakt administrator"
     if (dataType === "") return
     const objectToSend = {
-      schoolId: TESTSCHOOLID,
+      schoolId: schoolId,
       month: -10,
       year: -10,
       amount: -10,
@@ -50,7 +53,6 @@ export default function FileUpload() {
     if (isNaN(objectToSend.amount)) {
       throw "Ugyldig verdi, sjekk at verdien er et gyldig tall"
     }
-    console.log(objectToSend)
     objectsToAddToDb.push({ type: dataType, data: objectToSend })
   }
 
