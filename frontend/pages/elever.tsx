@@ -93,7 +93,7 @@ export default function Pupils() {
     // Check if no data for current/upcoming autumn semester, if so, use prediction values (grade 0 -> last grade-1 of the previous spring semester)
     // TODO: need to calculate new predicted budget based on this when data for value per pupil/spesped exists.
     // Display this value as a predicted budget, which will overwrite the old budget if the user clicks save. 
-    const lastIncludedYear = new Date(pupilData[pupilData.length - 1].year).getFullYear()
+    const lastIncludedYear = new Date(availableSemesters[availableSemesters.length - 1]).getFullYear()
     const nextAutumnSemester = new Date(lastIncludedYear, 7, 1).toDateString()
     if (!allPupilDataMap.has(nextAutumnSemester)) {
       // Check if we have spring values (and also prediction values)
