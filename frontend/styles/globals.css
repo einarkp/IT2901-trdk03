@@ -6,6 +6,7 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: #ececec;
   color: #162e5b;
+  word-wrap: break-word;
 }
 
 a {
@@ -25,4 +26,7 @@ a {
 .legend-item-6,
 .legend-item-7 {
   display: none !important;
+}
+td:first-child{
+  max-width:10rem;
 }

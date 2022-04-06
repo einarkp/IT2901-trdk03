@@ -33,11 +33,21 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
   )
 
   // Element displaying up ur down arrow with percentage e.g. (up arrow) 17%
-  const PercentageElement = (props:{percent: number}) => {
-    if (props.percent >= 0){
-      return <span className={styles.percentagePositive}> <CaretUpOutlined style={{ color: 'green' }} />{singleDecimalFormatter(props.percent)}%</span>
+  const PercentageElement = (props:{percent: number, moreIsBetter: boolean}) => {
+    if (props.percent == -100 || props.percent == 100){
+      return <span/>
+    } else if (props.percent >= 5){
+      if(props.moreIsBetter){
+        return <span className={styles.percentagePositive}> <CaretUpOutlined style={{ color: 'green' }} />{singleDecimalFormatter(props.percent)}%</span>
+      } else{
+        return <span className={styles.percentageNegative}> <CaretUpOutlined style={{ color: 'red' }} />{singleDecimalFormatter(props.percent)}%</span>
+      }
     } else if(-5 > props.percent){
-      return <span className={styles.percentageNegative}> <CaretDownOutlined style={{ color: 'red' }}/>{singleDecimalFormatter(props.percent)}%</span>
+      if(props.moreIsBetter){
+        return <span className={styles.percentageNegative}> <CaretDownOutlined style={{ color: 'red' }}/>{singleDecimalFormatter(props.percent)}%</span>
+      } else{
+        return <span className={styles.percentagePositive}> <CaretDownOutlined style={{ color: 'green' }}/>{singleDecimalFormatter(props.percent)}%</span>
+      }
     } else{
       return <span className={styles.percentageMedium}> <CaretDownOutlined style={{ color: "rgb(217, 190, 0)" }} />{singleDecimalFormatter(props.percent)}%</span>
     }
@@ -84,12 +94,21 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
 
         //Percentages
         //Calculated with formula ((NewValue - PrevValue)/PrevValue)*100
-        let accPercent = percentChange(oldData[currentMonth].accounting, data[currentMonth].accounting)
-        setAccountingPercent(accPercent)
-        let cumAccPercent = percentChange(oldData[currentMonth].cumulativeAccounting, data[currentMonth].cumulativeAccounting)
-        setCumulativeAccountingPercent(cumAccPercent)
         let budPercent = percentChange(oldData[currentMonth].budget, data[currentMonth].budget)
         setBudgetPercent(budPercent)
+        if(prediction){
+          let accPercent = percentChange(oldData[currentMonth].accounting, data[currentMonth].accountingPrediction)
+          setAccountingPercent(accPercent)
+          let cumAccPercent = percentChange(oldData[currentMonth].cumulativeAccounting, data[currentMonth].cumulativeAccountingPrediction)
+          setCumulativeAccountingPercent(cumAccPercent)
+        } else{
+          let accPercent = percentChange(oldData[currentMonth].accounting, data[currentMonth].accounting)
+          setAccountingPercent(accPercent)
+          let cumAccPercent = percentChange(oldData[currentMonth].cumulativeAccounting, data[currentMonth].cumulativeAccounting)
+          setCumulativeAccountingPercent(cumAccPercent)
+        }
+
+        
       }
     }
   }, [currentMonth])
@@ -101,25 +120,25 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
         <tbody>
           <tr className={styles.displayedMonth}>{longMonthFormatter(new Date(data[currentMonth].date.getFullYear(), currentMonth, 1))}</tr>
           <tr>
-            <td>{prediction ? <span>Regnskapsprognose</span> : <span>Regnskap</span>}</td>
+            <td>{prediction ? <span>Regnskap (prognose)</span> : <span>Regnskap</span>}</td>
             <td>{prediction 
             ? splitAmountFormatter(data[currentMonth].accountingPrediction)
             : splitAmountFormatter(data[currentMonth].accounting)
             }</td>
             <td>{prediction 
-            ? <PercentageElement percent={accountingPercent} />
-            : <PercentageElement percent={accountingPercent}/>
+            ? <PercentageElement percent={accountingPercent} moreIsBetter={false}/>
+            : <PercentageElement percent={accountingPercent} moreIsBetter={false}/>
             }</td>
           </tr>
           <tr>
-            <td>{prediction ? <span>Totalregnskapsprognose</span> : <span>Totalregnskap</span>}</td>
+            <td>{prediction ? <span>Totalregnskap (prognose)</span> : <span>Totalregnskap</span>}</td>
             <td>{prediction 
             ? splitAmountFormatter(data[currentMonth].cumulativeAccountingPrediction)
             : splitAmountFormatter(data[currentMonth].cumulativeAccounting)
             }</td>
             <td>{prediction 
-            ? <PercentageElement percent={cumulativeAccountingPercent} />
-            : <PercentageElement percent={cumulativeAccountingPercent}/>
+            ? <PercentageElement percent={cumulativeAccountingPercent} moreIsBetter={false}/>
+            : <PercentageElement percent={cumulativeAccountingPercent} moreIsBetter={false}/>
             }</td>
           </tr>
           <tr>
@@ -128,7 +147,7 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
               {splitAmountFormatter(data[currentMonth].budget)}
             </td>
             <td>
-              <PercentageElement percent={budgetPercent} />
+              <PercentageElement percent={budgetPercent} moreIsBetter={true}/>
             </td>
           </tr>
           <tr>
@@ -147,18 +166,22 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
           <tr>
             <td>Regnskap</td>
             <td>{previousAccounting}</td>
+            <td></td>
           </tr>
           <tr>
             <td>Totalregnskap</td>
             <td>{previousCumulativeAccounting}</td>
+            <td></td>
           </tr>
           <tr>
             <td>Budsjett</td>
             <td>{previousBudget}</td>
+            <td></td>
           </tr>
           <tr>
             <td>Elever</td>
             <td>{/*TODO: ADD ELEV DATA*/}...</td>
+            <td></td>
           </tr>
         </tbody>
       </table>
