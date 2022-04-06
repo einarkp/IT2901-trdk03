@@ -245,11 +245,11 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
         setErrorMessage("")
         let containsZero = inputFields.find(inputField => inputField.pupil === "0"); // There needs to be pupils in every class.
         if (containsZero) {
-                setErrorMessage("Elevantall kan ikke være 0")
-                setTimeout(() => { setErrorMessage("") }, 5000);
-                return
-            }
-            
+            setErrorMessage("Elevantall kan ikke være 0")
+            setTimeout(() => { setErrorMessage("") }, 5000);
+            return
+        }
+
         const oldAutmnValues = props.allPupilDataMap.get(props.currentSemester)
         const springDate = new Date("01-01-" + new Date(props.currentSemester).getFullYear()).toDateString()
         const oldSpringValues = props.allPupilDataMap.get(springDate)

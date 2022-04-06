@@ -7,8 +7,8 @@ export default function Pupils() {
 
   const [currentSemester, setCurrentSemester] = useState("")  // A dateString where month is always january (for spring semester) or august (autumn semester), e.g. "Mon Jan 01 2018"
   const [availableSemesters, setAvailableSemesters] = useState<SemesterSelectorData>({ allSemesters: [], currentSemester: "" })
-  const [allPupilDataMap, setAllPupilDataMap] = useState(new Map())
-  const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale.
+  const [allPupilDataMap, setAllPupilDataMap] = useState(new Map()) // See createAllPupilGraphData()
+  const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale when changing semesters.
 
   function refreshData() {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -83,14 +83,50 @@ export default function Pupils() {
           school: pupilObject.school
         });
       }
-
       if (springDate != null && !availableSemesters.includes(springDate)) availableSemesters.push(springDate)
       if (autumnDate != null && !availableSemesters.includes(autumnDate)) availableSemesters.push(autumnDate)
     });
     availableSemesters.sort(function (a, b) {
       return new Date(a).getTime() - new Date(b).getTime()
     })
-    setMaxAmount(Math.ceil(currentMax / 10) * 10)
+
+    // Check if no data for current/upcoming autumn semester, if so, use prediction values (grade 0 -> last grade-1 of the previous spring semester)
+    // TODO: need to calculate new predicted budget based on this when data for value per pupil/spesped exists.
+    // Display this value as a predicted budget, which will overwrite the old budget if the user clicks save. 
+    const lastIncludedYear = new Date(pupilData[pupilData.length - 1].year).getFullYear()
+    const nextAutumnSemester = new Date(lastIncludedYear, 7, 1).toDateString()
+    if (!allPupilDataMap.has(nextAutumnSemester)) {
+      // Check if we have spring values (and also prediction values)
+      if (!allPupilDataMap.has(new Date(lastIncludedYear, 0, 1).toDateString())) return
+      const gradeZeroSpringValue = pupilData.find((pupilObject: { grade: number; year: string }) => pupilObject.grade == 0 && pupilObject.year == lastIncludedYear + "-01-01")
+      if (gradeZeroSpringValue === undefined) return
+      // Create a new semester with the predicted values
+      const newAutumnDate = new Date(lastIncludedYear, 7, 1).toDateString()
+      const previousSpringData = allPupilDataMap.get(new Date(lastIncludedYear, 0, 1).toDateString())
+      allPupilDataMap.set(newAutumnDate, [{  // set predicted pupil amount for first available grade
+          pupils: gradeZeroSpringValue.autumn,
+          spesped: 1, // TODO: add spesped when data exists
+          grade: previousSpringData[0].grade,
+          gradeLabel: previousSpringData[0].grade + ". Trinn",
+          budget: previousSpringData[0].budget,
+          school: gradeZeroSpringValue.school
+      }])
+      // Fill in the rest of the grade values, skip the last grade, as they are no longer in the school
+      previousSpringData.forEach((pupilObject: { pupils: number; grade: number; budget: number; school: number }, index: number) => {
+        if (index == previousSpringData.length - 1) return  
+        allPupilDataMap.get(newAutumnDate).push({
+          pupils: pupilObject.pupils,
+          spesped: 1, // TODO: add spesped when data exists
+          grade: pupilObject.grade+1,
+          gradeLabel: pupilObject.grade+1 + ". Trinn",
+          budget: pupilObject.budget,
+          school: pupilObject.school
+        });
+      });
+      availableSemesters.push(newAutumnDate)
+    }
+
+    setMaxAmount(Math.ceil(currentMax / 10) * 10)  // <-- Set a consistent y-axis domain for the pupil graph so that it does not rescale when changing semesters
     setAvailableSemesters({ allSemesters: availableSemesters, currentSemester: availableSemesters[availableSemesters.length - 1] })
     setCurrentSemester(availableSemesters[availableSemesters.length - 1])
     setAllPupilDataMap(allPupilDataMap)
