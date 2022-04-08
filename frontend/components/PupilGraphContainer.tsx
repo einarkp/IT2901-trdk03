@@ -5,7 +5,7 @@ import PupilSemsterGraph from './PupilSemesterGraph'
 import PupilSidePanel from './PupilSidePanel'
 import SemesterSelector from './SemesterSelector'
 
-export default function PupilGraphContainer(props: { data: any, currentSemester: string, semesterSelector: any, semesterSelectorData: SemesterSelectorData, maxAmount: number, allPupilDataMap: any, refreshData: any }) {
+export default function PupilGraphContainer(props: { data: any, currentSemester: string, semesterSelector: any, semesterSelectorData: SemesterSelectorData, maxAmount: number, allPupilDataMap: any, refreshData: any}) {
     
     return (
         <div className={ContainerStyle.container}>
@@ -13,7 +13,7 @@ export default function PupilGraphContainer(props: { data: any, currentSemester:
                 <div className={ContainerStyle.graphYear}>
                     <SemesterSelector semesterSelector={props.semesterSelector} semesterSelectorData={props.semesterSelectorData} />
                 </div>
-                <PupilSemsterGraph data={props.data} maxAmount={props.maxAmount} />
+                <PupilSemsterGraph data={props.data} maxAmount={props.maxAmount} isPrediction={props.allPupilDataMap.get(props.currentSemester)[0].isPrediction}/>
             </div>
             <div className={ContainerStyle.info}>
                 <PupilSidePanel allPupilDataMap={props.allPupilDataMap} currentSemester={props.currentSemester} semesterSelectorData={props.semesterSelectorData} refreshData={props.refreshData} />

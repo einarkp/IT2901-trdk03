@@ -6,8 +6,8 @@ from django.contrib.auth import login
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
-from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer, PupilsSerializer
-from .models import Accounting, BudgetChange, Prediction, Prognosis, School, Budget, Pupils
+from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetPredictionSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer, PupilsSerializer
+from .models import Accounting, BudgetChange, BudgetPrediction, Prediction, Prognosis, School, Budget, Pupils
 from .arima import arima
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -91,6 +91,34 @@ class BudgetView(viewsets.ViewSet):
             Budget.objects.create(
                 school=correspondingSchool, date=date, amount=budget["amount"])
         return Response("Probably added some budgets")
+
+class BudgetPredictionView(viewsets.ViewSet):
+    serializer_class = BudgetPredictionSerializer
+
+    def list(self, request, school_pk=None):
+        queryset = BudgetPrediction.objects.filter(school=school_pk)
+        serializer = BudgetPredictionSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, school_pk=None):
+        queryset = BudgetPrediction.objects.filter(pk=pk, school=school_pk)
+        budget = get_object_or_404(queryset, pk=pk)
+        serializer = BudgetPredictionSerializer(budget)
+        return Response(serializer.data)
+
+    def post(self, request, school_pk=None):
+        for budgetPrediction in request.data:
+            correspondingSchool = School.objects.filter(
+                pk=budgetPrediction["schoolId"]).first()
+            # Delete old entry if it exists, only one budget entry should exist per year
+            BudgetPrediction.objects.filter(date__year=budgetPrediction["year"], school=correspondingSchool).delete()
+
+            # Add new value
+            date = datetime.date(budgetPrediction["year"], budgetPrediction["month"], 1)
+            BudgetPrediction.objects.create(
+                school=correspondingSchool, date=date, amount=budgetPrediction["amount"])
+        return Response("Probably added some budget predictions")
+
 
 class PupilsView(viewsets.ViewSet):
     serializer_class = PupilsSerializer

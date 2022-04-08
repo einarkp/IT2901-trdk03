@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Prediction, School, Budget, Accounting, BudgetChange, Prognosis, Pupils
+from .models import Prediction, School, Budget, Accounting, BudgetChange, Prognosis, Pupils, BudgetPrediction
 
 # Register your models here.
 class SchoolAdmin(admin.ModelAdmin):
@@ -11,6 +11,9 @@ class PupilsAdmin(admin.ModelAdmin):
 class BudgetAdmin(admin.ModelAdmin):
     list_display = ('school', 'date', 'amount')
 
+class BudgetPredictionAdmin(admin.ModelAdmin):
+    list_display = ('school', 'date', 'amount')
+
 class UpdateAdmin(admin.ModelAdmin):
     list_display = ('budget', 'date', 'amount')
 
@@ -19,6 +22,6 @@ class PredictionAdmin(admin.ModelAdmin):
 
 admin.site.register(Pupils, PupilsAdmin)
 admin.site.register(School, SchoolAdmin)
-admin.site.register([Budget, Accounting], BudgetAdmin)
+admin.site.register([Budget, Accounting, BudgetPrediction], BudgetAdmin)
 admin.site.register([BudgetChange, Prognosis], UpdateAdmin)
 admin.site.register(Prediction, PredictionAdmin)
