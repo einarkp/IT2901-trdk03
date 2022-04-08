@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Formik, Field, Form } from 'formik'
 import formStyles from '../styles/LoginForm.module.css'
 import { loginRequest } from '../utils/APIUtils';
@@ -8,7 +8,8 @@ import { StoreContext } from '../pages/_app';
 import { observer } from "mobx-react"
 
 const LoginForm: React.FC = observer(() => {
-const store = useContext(StoreContext)
+    const store = useContext(StoreContext)
+    const [invalidLogin, setInvalidLogin] = useState(false)
   return (
     <Formik
             initialValues={{
@@ -29,7 +30,7 @@ const store = useContext(StoreContext)
                             //TODO: ikke hardkode denne, er også en dårlig løsning
                             window.location.href = '/totalOversikt?' + "id="+store.activeUser?.schoolID+"&year=2022"
                         }else{
-                            alert("failed to logg in")
+                            setInvalidLogin(true)
                         }
                     })
             }}
@@ -37,6 +38,7 @@ const store = useContext(StoreContext)
             <Form>
                 <Field name="username" type="username" placeholder="Username" className={formStyles.field} />
                 <Field name="password" type="password" placeholder="Passord" className={formStyles.field} />
+                {invalidLogin && <h5 className={formStyles.error}>Invalid username and password combination</h5>}
 
                 <div className={formStyles.buttons}>
                     <button type="submit" className={formStyles.button}>Logg inn</button>
