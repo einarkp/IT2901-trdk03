@@ -15,6 +15,14 @@ class BudgetSerializer(serializers.ModelSerializer):
         model = Budget
         fields = ('school', 'date', 'amount')
 
+class BudgetPredictionSerializer(serializers.ModelSerializer):
+    parent_lookup_kwargs = {
+        'school_pk' : 'school__pk'
+    }
+    class Meta:
+        model = Budget
+        fields = ('school', 'date', 'amount')
+
 class PupilsSerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {
         'school_pk' : 'school__pk',

@@ -1,8 +1,13 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import { SemesterSelectorData } from "../Interfaces";
 import styles from '../styles/PupilSidePanel.module.css'
 import { UpdateDatabase } from "../utils/APIUtils";
 import { splitAmountFormatter } from "../utils/Formatters";
+import { BsQuestionCircle } from "react-icons/bs"
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import { styled } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
 
 export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData, refreshData: any }) {
     const [budgetChange, setBudgetChange] = useState(Number.POSITIVE_INFINITY)
@@ -26,6 +31,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
     const [successMessage, setSuccessMessage] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
     const [showUnsavedDataMessage, setShowUnsavedDataMessage] = useState(false)
+    const [showFirstTimePredictionMessage, setShowFirstTimePredictionMessage] = useState(false)
     const prevAllPupilDataMap = usePrevious(props.allPupilDataMap)
     const valueOfPupil = 50000
     const valueOfSpesped = 100000
@@ -44,8 +50,18 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
         const currentSemesterDate = new Date(props.currentSemester)
         if (currentSemesterDate.getMonth() != 7) setIsPrediction(false)
         else if (now.getFullYear() <= currentSemesterDate.getFullYear()) setIsPrediction(true)
-        calculateChange()
 
+        // If the values are prediction values tell the user to verify the values
+        const firstTimePrediction = props.allPupilDataMap.get(props.currentSemester)[0].isPrediction
+        if (firstTimePrediction) setShowFirstTimePredictionMessage(true)
+        else setShowFirstTimePredictionMessage(false)
+        if (isPrediction) {
+            setPredictedBudget(props.allPupilDataMap.get(props.currentSemester)[0].predictedBudget)
+            const currentBudget = props.allPupilDataMap.get(props.currentSemester)[0].budget
+            const percentchange = (props.allPupilDataMap.get(props.currentSemester)[0].predictedBudget - currentBudget) / currentBudget * 100.0
+            setPredictedPercentChange(Number(percentchange.toFixed(1)))
+        }
+        calculateChange()
         // After updating pupil amount and getting new data, continue showing the form.
         // @ts-ignore
         if (props.allPupilDataMap.get(props.currentSemester) != prevAllPupilDataMap?.get(props.currentSemester) && prevAllPupilDataMap?.get(props.currentSemester)) {
@@ -126,15 +142,17 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
         setInputFields(Array.from(Array(props.allPupilDataMap.get(props.currentSemester).length), () => ({ pupil: '', spesped: '' })))
         setPupilChangeArr(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
         setSpespedChangeArr(new Array(props.allPupilDataMap.get(props.currentSemester).length).fill(0))
-        setPredictedBudget(0)
-        setPredictedPercentChange(0)
+        setPredictedBudget(props.allPupilDataMap.get(props.currentSemester)[0].predictedBudget)
+        const currentBudget = props.allPupilDataMap.get(props.currentSemester)[0].budget
+        const percentchange = (props.allPupilDataMap.get(props.currentSemester)[0].predictedBudget - currentBudget) / currentBudget * 100.0
+        setPredictedPercentChange(Number(percentchange.toFixed(1)))
         setShowUnsavedDataMessage(false)
     }
 
 
     const InfoPanel = () => (
         <div className={styles.container}>
-            {isPrediction ? <span className={styles.topText}>Predikert budsjett</span> : <span className={styles.topText}>Budjsett og endringer</span>}
+            {isPrediction ? showFirstTimePredictionMessage ? <span className={styles.topText}>Predikert budsjett</span> : <span className={styles.topText}>Estimert budsjett</span> : <span className={styles.topText}>Budsjett og endringer</span>}
             <table className={styles.infoTable}>
                 <tbody>
                     <tr>
@@ -175,13 +193,14 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                 </tbody>
             </table>
             <div className={styles.changePupilsButton}>
-                {isPrediction ? <button onClick={() => { setShowPupilForm(true); resetPupilForm() }} className={styles.button}>Endre elevantall</button> : null}
+                {isPrediction ? <button onClick={() => { setShowPupilForm(true); resetPupilForm() }} className={styles.button}>{showFirstTimePredictionMessage ? "Verifiser elevantall" : "Endre elevantall"}</button> : null}
             </div>
         </div>
     )
 
     function computePredictedBudget() {
         if (currentBudget == "" || currentBudget == "Ingen data") return
+
         // Get all old values, then replace with new values if exists, compute difference, compute new budget
         const oldPupilSum = props.allPupilDataMap.get(props.currentSemester).map((i: { pupils: number; }) => i.pupils).reduce((a: number, b: number) => a + b);
         const oldSpespedSum = props.allPupilDataMap.get(props.currentSemester).map((i: { spesped: number; }) => i.spesped).reduce((a: number, b: number) => a + b);
@@ -193,14 +212,17 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             if (inputObject.spesped == "") newSpespedSum += props.allPupilDataMap.get(props.currentSemester)[index].spesped
             else newSpespedSum += Number(inputObject.spesped)
         })
+
         const budgetPupilChange = (newPupilSum - oldPupilSum) * valueOfPupil
         const budgetSpespedChange = (newSpespedSum - oldSpespedSum) * valueOfSpesped
         const totalChange = budgetPupilChange + budgetSpespedChange
         const previousBudget = Number(currentBudget.replace("kr", "").replace(/\s/g, ""))
-        const newBudgetValue = previousBudget + totalChange
+        const newBudgetValue = props.allPupilDataMap.get(props.currentSemester)[0].predictedBudget + totalChange
         const percentchange = (newBudgetValue - previousBudget) / previousBudget * 100.0
+
         setPredictedPercentChange(Number(percentchange.toFixed(1)))
         setPredictedBudget(newBudgetValue)
+
     }
 
     function handleClickAwayPupil(value: string, index: number) {
@@ -249,8 +271,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             setTimeout(() => { setErrorMessage("") }, 5000);
             return
         }
-
-        const oldAutmnValues = props.allPupilDataMap.get(props.currentSemester)
+        const oldAutmnValues = props.allPupilDataMap.get(props.currentSemester)  // (also prediction values)
         const springDate = new Date("01-01-" + new Date(props.currentSemester).getFullYear()).toDateString()
         const oldSpringValues = props.allPupilDataMap.get(springDate)
         const object2send = {
@@ -265,20 +286,21 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             else object2send.autumn[currentIndex] = Number(inputFields[index].pupil)
             object2send.spring[currentIndex] = oldSpringValues[index].pupils
         })
+
         await UpdateDatabase("pupils", [object2send]).then((response) => {
             if (response == "Probably added some Pupil values") {
-                const newBudgetObject = {
+                const newBudgetPredictionObject = {
                     schoolId: oldAutmnValues[0].school,
                     year: new Date(props.currentSemester).getFullYear(),
                     month: 1,
                     amount: predictedBudget
                 }
-                UpdateDatabase("budgets", [newBudgetObject]).then((response) => {
-                    if (response == "Probably added some budgets") {
-                        resetPupilForm()  // This can be replaced with setPredictedPercentChange(0) to still include pupil change +- numbers, and predicted budget.
+                UpdateDatabase("budgetpredictions", [newBudgetPredictionObject]).then((response) => {
+                    if (response == "Probably added some budget predictions") {
+                        resetPupilForm()
                         setShowUnsavedDataMessage(false)
-                        setSuccessMessage("Elevantallet og budsjettet ble oppdatert!")
-                        setTimeout(() => { setSuccessMessage("") }, 3000);
+                        setSuccessMessage("Elevantallet og det estimerte budsjettet ble oppdatert!")
+                        setTimeout(() => { setSuccessMessage("") }, 5000);
                         props.refreshData()
                     } else {
                         setErrorMessage("Noe gikk galt")
@@ -296,11 +318,34 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             setTimeout(() => { setErrorMessage("") }, 5000);
         })
     }
+    const HtmlTooltip = styled(({ className, ...props }) => (
+        <Tooltip {...props} classes={{ popper: className }} />
+    ))(({ theme }) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: "#f5f5f9",
+            color: "rgba(0, 0, 0, 0.87)",
+            maxWidth: 400,
+            fontSize: theme.typography.pxToRem(12),
+            border: "1px solid #dadde9"
+        }
+    }));
 
     return (
         <div>
             {showPupilForm ? <div className={styles.container}>
-                <span className={styles.topText}>Endre elevantall</span>
+                {showFirstTimePredictionMessage ? <span className={styles.topText} style={{ display: "flex", alignItems: "center" }}>Verifiser predikert elevantall  <div style={{ width: "20px" }}>
+                    <HtmlTooltip
+                        title={
+                            <Fragment>
+                                <Typography color="inherit">Elevtallene på denne siden er prediksjoner. Verifiser tallene og trykk lagre for å se estimert budsjett på Totaloversikt-grafen</Typography>
+                            </Fragment>
+                        }
+                    >
+                        <IconButton><BsQuestionCircle /></IconButton>
+                    </HtmlTooltip>
+                </div> </span> :
+                    <span className={styles.topText}>Endre elevantall</span>}
+
                 <table >
                     <tbody>
                         <tr>
@@ -348,7 +393,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                             <td>{currentBudget}</td>
                         </tr>
                         <tr>
-                            <td>Predikert budsjett:</td>
+                            {showFirstTimePredictionMessage ? <td>Predikert budsjett:</td> : <td>Estimert budsjett:</td>}
                             <td>{predictedBudget != 0 ? String(splitAmountFormatter(predictedBudget)) + "kr" : null}</td>
                         </tr>
                         {predictedBudget != 0 ?

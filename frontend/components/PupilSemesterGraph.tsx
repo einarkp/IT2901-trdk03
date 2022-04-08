@@ -1,47 +1,34 @@
 import React from 'react';
-import { CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, BarChart, Bar } from 'recharts';
+import { CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, BarChart, Bar, Label } from 'recharts';
 import styles from '../styles/BudgetGraph.module.css'
 
-const title = "Høst 2022"
-const data = [
-    {
-        grade: '1. Trinn',
-        pupils: 70,
-        spesped: 3,
-    },
-    {
-        grade: '2. Trinn',
-        pupils: 59,
-        spesped: 1,
-    },
-    {
-        grade: '3. Trinn',
-        pupils: 66,
-        spesped: 2,
-    },
-    {
-        grade: '4. Trinn',
-        pupils: 70,
-        spesped: 3,
-    },
-    {
-        grade: '5. Trinn',
-        pupils: 59,
-        spesped: 1,
-    },
-    {
-        grade: '6. Trinn',
-        pupils: 66,
-        spesped: 0,
-    },
-    {
-        grade: '7. Trinn',
-        pupils: 70,
-        spesped: 3,
-    },
-];
+export default function PupilSemsterGraph(props: { data: any, maxAmount: number, isPrediction: boolean }) {  // An alternative approach to displaying this is vertically: https://stackoverflow.com/a/66221135/14953338
+    const CandyBar = (props: { x: number; y: number; width: number; height: number; fill: string; }) => {
+        const {
+            x: oX,
+            y: oY,
+            width: oWidth,
+            height: oHeight,
+            fill
+        } = props;
+        let x = oX;
+        let y = oHeight < 0 ? oY + oHeight : oY;
+        let width = oWidth;
+        let height = Math.abs(oHeight);
 
-export default function PupilSemsterGraph(props: { data: any, maxAmount:number }) {  // An alternative approach to displaying this is vertically: https://stackoverflow.com/a/66221135/14953338
+        return (
+            <svg>
+                <rect fill={fill}
+                    mask='url(#mask-stripe)'
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height} />
+            </svg>
+        );
+    };
+
+
     return (
         <div className={styles.container} >
             <ResponsiveContainer height={600} width="100%">
@@ -56,7 +43,6 @@ export default function PupilSemsterGraph(props: { data: any, maxAmount:number }
                         bottom: 5,
                     }}
                     barCategoryGap={25}
-
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="gradeLabel" />
@@ -68,13 +54,30 @@ export default function PupilSemsterGraph(props: { data: any, maxAmount:number }
                     <YAxis domain={[0, props.maxAmount]} />
                     <Tooltip />
                     <Legend />
+                    <pattern id="pattern-stripe"
+                        width="8" height="8"
+                        patternUnits="userSpaceOnUse"
+                        patternTransform="rotate(45)">
+                        <rect width="5" height="8" transform="translate(0,0)" fill="white"></rect>
+                    </pattern>
+                    <mask id="mask-stripe">
+                        <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)" />
+                    </mask>
                     <Bar dataKey="pupils"
-                        stackId="a"  // <-- NOTE: to see how the chart will look if not stacked bars simply remove "stackId" property from this component.
-                        name="Elever"
+                        stackId="a" 
+                        name={props.isPrediction ? "Predikerte elever" : "Elever"}
                         fill="#5874fc"
-                        barSize={30} />
-
-                    <Bar dataKey="spesped" stackId="a" name="Spesped" fill="#54c4fc" />
+                        barSize={30}
+                        // @ts-ignore
+                        shape={props.isPrediction ? <CandyBar /> : null}
+                    />
+                    <Bar dataKey="spesped" 
+                    stackId="a" 
+                    name={props.isPrediction ? "Predikerte spesped" : "Spesped"}
+                    fill="#54c4fc"
+                    // @ts-ignore
+                    shape={props.isPrediction ? <CandyBar /> : null}
+                    />
                 </BarChart>
 
             </ResponsiveContainer>
