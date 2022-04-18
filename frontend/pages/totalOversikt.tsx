@@ -20,9 +20,7 @@ export default function TotalOversikt() {
     const accountingArr = allData.Accounting
     const predictionArr = allData.Prediction
     const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount : null
-    const budgetChange = allData.BudgetChange.length !== 0 ? allData.BudgetChange[0].amount : null // might need to support multiple changes
-    const updatedBudget = budget + budgetChange // the new budget after applying change
-    console.log("budgetChange", updatedBudget)
+    const budgetChanges = allData.BudgetChange 
     predictionArr.forEach((element: { amount: number; isPrediction: boolean; }) => {  // Need some way of differentiating prediction values
       element.amount = Math.floor(element.amount)
       element.isPrediction = true
@@ -38,6 +36,10 @@ export default function TotalOversikt() {
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
     let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length
+   
+    let currentBudget = budget // the current school budget
+    let unappliedChanges = budgetChanges // unaplied changes
+
     for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
       currentCumulativeValue += currentAmount
@@ -54,6 +56,18 @@ export default function TotalOversikt() {
         }
       }
 
+      // applies changes up to current date and removes from unapplied list
+      for (const change of unappliedChanges) {
+        const date = new Date(change['date'])
+        if (date.getMonth() <= index) {
+          currentBudget += change['amount']
+          unappliedChanges = unappliedChanges.filter(function(el: any) { return el.date != change['date']; })
+          console.log("applied change at month: ", date.getMonth())
+          console.log(unappliedChanges)
+        }
+      }
+      
+
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -64,22 +78,23 @@ export default function TotalOversikt() {
         cumulativeAccounting: !isPrediction ? currentCumulativeValue : firstPredictionObject.amount === currentAmount ? currentCumulativeValue : null,
         accountingPrediction: isPrediction ? currentAmount : null,
         cumulativeAccountingPrediction: isPrediction ? currentCumulativeValue : null,
-        budget: index < 7 ? budget : budget + budgetChange,
+        budget: currentBudget,
         uncertainty: [isPrediction ? Math.floor(concatinatedArr[index].lower_bound) : null, isPrediction ? Math.floor(concatinatedArr[index].upper_bound) : null],
         cumulativeUncertainty: [isPrediction ? currentCumilitaveLowerBound : null, isPrediction ? currentCumilitaveUpperBound : null]
       }
       combinedDataArr.push(objectToAdd)
     }
+    
 
     // update budget based on budget change
     // Set values in right side info panel:
     const highestAccountingMonth = longMonthFormatter(new Date(highestValueObject.date!)).split(" ")[0]
     const LowestAccountingMonth = longMonthFormatter(new Date(lowestValueObject.date!)).split(" ")[0]
-    const relativePercentage = Math.floor((updatedBudget / currentCumulativeValue) * 100)
+    const relativePercentage = Math.floor((currentBudget / currentCumulativeValue) * 100)
     //Checks if it is within fail margin
-    const withinMargin = (currentCumilitaveUpperBound - ((currentCumilitaveUpperBound - currentCumulativeValue) / 2)) > updatedBudget
+    const withinMargin = (currentCumilitaveUpperBound - ((currentCumilitaveUpperBound - currentCumulativeValue) / 2)) > currentBudget
     const sidePanelInfo: GraphInfoProps = {
-      result: updatedBudget > currentCumulativeValue,
+      result: currentBudget > currentCumulativeValue,
       withinMargin: withinMargin,
       resultPercent: relativePercentage,
       bestMonth: lowestValueObject.amount + " (" + LowestAccountingMonth + ")",

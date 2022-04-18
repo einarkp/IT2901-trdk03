@@ -31,9 +31,11 @@ router.register(r'schools', views.SchoolView, basename='schools')
 # /budgets/{pk}
 router.register(r'budgets', views.AllBudgetsView, basename='budgets')
 
+
 # /all-data
 # /all-data?year=YYYY
 router.register(r'all-data', views.AllDataView, basename='all-data')
+
 
 schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
 
@@ -60,10 +62,6 @@ schools_router.register(r'predictions', views.PredicitonView, basename='school-p
 
 budgets_router = routers.NestedSimpleRouter(schools_router, r'budgets', lookup='budget')
 
-# /schools/{responsibility}/budgets/{budget_pk}/changes
-# /schools/{responsibility}/budgets/{budget_pk}/changes/{pk}
-budgets_router.register(r'changes', views.BudgetChangeView, basename='budget-changes')
-
 # /schools/{responsibility}/budgets/{budget_pk}/prognoses
 # # /schools/{responsibility}/budgets/{budget_pk}/prognoses/{pk}
 budgets_router.register(r'prognoses', views.PrognosisView, basename='budget-prognoses')
@@ -80,4 +78,5 @@ urlpatterns = [
     path(r'logout/', knox_views.LogoutView.as_view(), name='knox_logout'),
     path(r'logoutall/', knox_views.LogoutAllView.as_view(), name='knox_logoutall'),
     path('getAvailableYears/', views.getAvailableYears),
+    path('changes/', views.postBudgetChanges)
 ]
