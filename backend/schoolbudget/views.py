@@ -3,6 +3,7 @@ from operator import indexOf
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
+from idna import check_nfc
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
@@ -15,7 +16,8 @@ from knox.views import LoginView as KnoxLoginView
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import permissions
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import csrf_exempt
+import json
 # Create your views here.
 
 class LoginView(KnoxLoginView):
@@ -285,23 +287,6 @@ class PredicitonView(viewsets.ViewSet):
         return Response("Probably created/updated some prediction values")
 
 
-class BudgetChangeView(viewsets.ViewSet):
-    serializer_class = BudgetChangeSerializer
-
-    def list(self, request, school_pk=None, budget_pk=None):
-        queryset = BudgetChange.objects.filter(
-            budget__school=school_pk, budget=budget_pk)
-        serializer = BudgetChangeSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None, school_pk=None, budget_pk=None):
-        queryset = BudgetChange.objects.filter(
-            pk=pk, budget=budget_pk, budget__school=school_pk)
-        budget_change = get_object_or_404(queryset, pk=pk)
-        serializer = BudgetChangeSerializer(budget_change)
-        return Response(serializer.data)
-
-
 class PrognosisView(viewsets.ViewSet):
     serializer_class = PrognosisSerializer
 
@@ -383,3 +368,26 @@ def getAvailableYears(request):
     predictionYears = [date.year for date in predictionDates]
     allYears = sorted(list(set(accoutingYears) | set(predictionYears)))
     return JsonResponse(allYears, safe=False)
+
+
+@csrf_exempt
+def postBudgetChanges(request):
+    if request.method == "POST":
+        for change in json.loads(request.body.decode("UTF-8")):
+            # finds the corresponding budget for the change
+            if (change['school']):
+                correspondingSchool = School.objects.filter(
+                    pk=change["school"]).first()
+                correspondingBudget = Budget.objects.filter(
+                    school=correspondingSchool, date__year=change["year"]).first()
+                date = datetime.date(change["year"], change["month"], 1)
+
+                if(correspondingBudget):
+                    # first removes changes already in db
+                    BudgetChange.objects.filter(budget=correspondingBudget, date=date).delete()
+                    # creates new change for budget
+                    BudgetChange.objects.create(
+                        budget=correspondingBudget, date=date, amount=change["amount"])
+
+        return HttpResponse("Probably added some changes")
+    
