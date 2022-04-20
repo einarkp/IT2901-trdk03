@@ -85,6 +85,16 @@ export type GraphProps = {
   yearSelectorData: YearSelectorData
 };
 
+export type schoolData = {
+  responsibility: number,
+  name: string
+  schoolSimiliar: number[]
+};
+
+export type schoolDataProp = {
+  school: schoolData
+};
+
 export type AllDataApiResponse = {
   Accounting: {school: number, date: string, amount: number}[],
   Budget: {school: number, date: string, amount: number}[],

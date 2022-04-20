@@ -5,7 +5,7 @@ from .models import Accounting, Budget, BudgetChange, Prediction, Prognosis, Sch
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
-        fields = ('responsibility', 'name')
+        fields = ('responsibility', 'name','schoolSimiliar')
 
 class BudgetSerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {
