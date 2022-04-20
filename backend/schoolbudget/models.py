@@ -5,6 +5,9 @@ from django.db import models
 class School(models.Model):
     responsibility = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
+    schoolSimiliar = models.ManyToManyField("self",blank=True, symmetrical=False)
+    class Meta:
+        unique_together = ('responsibility', 'name')
 
 
 class Pupils(models.Model):

@@ -10,6 +10,7 @@ from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
 from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetPredictionSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer, PupilsSerializer
 from .models import Accounting, BudgetChange, BudgetPrediction, Prediction, Prognosis, School, Budget, Pupils
 from .arima import arima
+from .knn import nearestNeighbor
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from knox.views import LoginView as KnoxLoginView
@@ -18,6 +19,19 @@ from rest_framework import permissions
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+import pandas as pd
+from pandas import read_excel
+import os
+<<<<<<< backend/schoolbudget/views.py
+import pandas as pd
+from pandas import read_excel
+import os
+
+
+=======
+from django.views.decorators.csrf import csrf_exempt
+import json
+>>>>>>> backend/schoolbudget/views.py
 # Create your views here.
 
 class LoginView(KnoxLoginView):
@@ -47,8 +61,33 @@ class SchoolView(viewsets.ViewSet):
     def post(self, request):
         # Needs validation etc etc.
         for school in request.data:
+            School.objects.filter(responsibility=school["responsibility"]).delete()
             School.objects.create(
                 responsibility=school["responsibility"], name=school["name"])
+
+        #gets your current directory
+        dirname = os.path.dirname(__file__)
+        #concatenates your current directory with your desired subdirectory
+        results = os.path.join(dirname, r'allKnn.xlsx')
+
+        skoler = read_excel(results, header=0, index_col=0) 
+        skoler = skoler.drop("AnsvarsNavn", axis=1)
+        skoler = skoler.drop("BudsjettEndringer", axis=1)
+        skoler = skoler.drop("RevidertBudsjett", axis=1)
+
+        #schoolArr = []
+        for i in range(len(skoler)):
+            schoolArr = []
+            similiar = nearestNeighbor(4,skoler,skoler.values[i])
+
+            for i in range(len(similiar)-1):
+                simSchoolLoop = School.objects.get(pk=similiar[i+1])
+                schoolArr.append(simSchoolLoop)
+
+            currentSchool = School.objects.get(pk=similiar[0])
+            currentSchool.schoolSimiliar.set(schoolArr)
+            currentSchool.save()
+
         return Response("Probably added some schools")
 
 

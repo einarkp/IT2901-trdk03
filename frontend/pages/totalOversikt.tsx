@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import GraphContainer from '../components/GraphContainer'
-import { GraphInfoProps, AllDataApiResponse } from '../Interfaces';
+import Recommended from '../components/Recommended'
+import { GraphInfoProps, AllDataApiResponse, schoolData } from '../Interfaces';
 import { getData } from '../utils/APIUtils';
 import { longMonthFormatter } from "../utils/Formatters"
 
@@ -11,7 +12,6 @@ export default function TotalOversikt() {
   const [infoData, setInfoData]: any[] = useState([])
   const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear() - 1 })
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
-
 
   function combineAllDataApiResponse(allData: any) {
     // Combine the response arrays from backend into a format that fits Recharts.
@@ -109,6 +109,8 @@ export default function TotalOversikt() {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
+
+
     // Get data for yearselector
     if (yearSelectorData.allYears.includes(-1)) {
       getData("getAvailableYears/?schoolid=" + params.id)
@@ -119,11 +121,7 @@ export default function TotalOversikt() {
         })
         .catch((e) => { console.log(e) });
     }
-      if (params.id === "example") {
-        setOldData(combineAllDataApiResponse(dummyDataApiResponse))
-        setGraphData(combineAllDataApiResponse(dummyDataApiResponse))
-      }
-      else {
+
         getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
           .then((response) => {
             const AllDataApiResponse: AllDataApiResponse = response.data
@@ -148,11 +146,12 @@ export default function TotalOversikt() {
               })
           })
           .catch((e) => { console.log(e) });
-      }
-  }, [currentYear]);
+      }, 
+      [currentYear]);
 
   return (<>
     {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} />}
+    <Recommended />
   </>
   )
 }
@@ -163,117 +162,3 @@ export default function TotalOversikt() {
 //   worstMonth: "2816690 (Oktober)",
 //   maxMonthUse: "..",
 // }
-
-const dummyDataApiResponse = {
-  "Accounting": [
-    {
-      "school": 31040,
-      "date": "2022-01-12",
-      "amount": 2426016.4346495713
-    },
-    {
-      "school": 31040,
-      "date": "2022-02-12",
-      "amount": 3006524.046121277
-    },
-  ],
-  "Budget": [
-    {
-      "school": 31040,
-      "date": "2021-02-04",
-      "amount": 30476000.0
-    }
-  ],
-  "BudgetChange": [],
-  "Prognosis": [],
-  "Prediction": [
-    {
-      "school": 31040,
-      "date": "2022-03-12",
-      "amount": 2988368.740213417,
-      "lower_bound": 2488368.740213417,
-      "upper_bound": 3488368.740213417,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-04-12",
-      "amount": 2645581.273558945,
-      "lower_bound": 2645581.273558945 - 500000,
-      "upper_bound": 2645581.273558945 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-05-12",
-      "amount": 1824685.4086115295,
-      "lower_bound": 1824685.4086115295 - 500000,
-      "upper_bound": 1824685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-06-12",
-      "amount": 1360669.8196556044,
-      "lower_bound": 1324685.4086115295 - 500000,
-      "upper_bound": 1324685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-07-12",
-      "amount": 2654503.7947538886,
-      "lower_bound": 2624685.4086115295 - 500000,
-      "upper_bound": 2624685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-08-12",
-      "amount": 3274943.7197576854,
-      "lower_bound": 3224685.4086115295 - 500000,
-      "upper_bound": 3224685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-09-12",
-      "amount": 3340776.920716508,
-      "lower_bound": 3324685.4086115295 - 500000,
-      "upper_bound": 3324685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-10-12",
-      "amount": 2968126.4624555605,
-      "lower_bound": 2924685.4086115295 - 500000,
-      "upper_bound": 2924685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-11-12",
-      "amount": 1540675.787442268,
-      "lower_bound": 1524685.4086115295 - 500000,
-      "upper_bound": 1524685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2022-12-12",
-      "amount": 2038780.100294605,
-      "lower_bound": 2024685.4086115295 - 500000,
-      "upper_bound": 2024685.4086115295 + 500000,
-      "coefficient": 0.05
-    },
-    {
-      "school": 31040,
-      "date": "2023-01-12",
-      "amount": 2038780.100294605,
-      "lower_bound": 2024685.4086115295 - 500000,
-      "upper_bound": 2024685.4086115295 + 500000,
-      "coefficient": 0.05
-    }
-  ],
-}
