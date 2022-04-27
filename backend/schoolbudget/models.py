@@ -10,6 +10,7 @@ class School(models.Model):
         unique_together = ('responsibility', 'name')
 
 
+
 class Pupils(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     year = models.DateField()

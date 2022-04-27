@@ -33,7 +33,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
     const [showUnsavedDataMessage, setShowUnsavedDataMessage] = useState(false)
     const [showFirstTimePredictionMessage, setShowFirstTimePredictionMessage] = useState(false)
     const prevAllPupilDataMap = usePrevious(props.allPupilDataMap)
-    const valueOfPupil = 50000
+    const valueOfPupil = 70000
     const valueOfSpesped = 100000
 
     function usePrevious(value: any) {
@@ -337,7 +337,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                     <HtmlTooltip
                         title={
                             <Fragment>
-                                <Typography color="inherit">Elevtallene på denne siden er prediksjoner. Verifiser tallene og trykk lagre for å se estimert budsjett på Totaloversikt-grafen</Typography>
+                                <Typography color="inherit">Elevtallene på denne siden er prediksjoner. Verifiser tallene og trykk lagre for å se estimert budsjett.</Typography>
                             </Fragment>
                         }
                     >
