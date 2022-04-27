@@ -13,7 +13,7 @@ async function insertToDb(budget) {
 }
 
 async function addBudgets() {
-    var filePath = "frontend/src/tools/Budgets2018_2021.csv";
+    var filePath = "frontend/src/tools/Budgets2018_2022.csv";
 
     const fileStream = fs.createReadStream(filePath);
 

@@ -62,12 +62,9 @@ export default function TotalOversikt() {
         if (date.getMonth() <= index) {
           currentBudget += change['amount']
           unappliedChanges = unappliedChanges.filter(function(el: any) { return el.date != change['date']; })
-          console.log("applied change at month: ", date.getMonth())
-          console.log(unappliedChanges)
         }
       }
       
-
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -155,10 +152,3 @@ export default function TotalOversikt() {
   </>
   )
 }
-
-// const dummyInfo: GraphInfoProps = {
-//   result: true,
-//   bestMonth: "-693950 (Juni)",
-//   worstMonth: "2816690 (Oktober)",
-//   maxMonthUse: "..",
-// }

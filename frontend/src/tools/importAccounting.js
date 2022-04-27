@@ -2,9 +2,6 @@ const fs = require("fs")
 const readline = require("readline")
 const axios = require("axios")
 
-// This throws  "NOT NULL constraint failed: schoolbudget_accounting.school_id" for some entries, should figure out why...
-// UPDATE: this is because Accounting2018_21Csv.csv contains school ID's not present in AllSchoolsCsv.csv, e.g. 41820 Lianvatnet...
-
 async function insertToDb(accounting) {
     await axios.post('http://127.0.0.1:8000/schools/' + accounting[0].schoolId + '/accountings/', accounting)
         .then(function (response) {
