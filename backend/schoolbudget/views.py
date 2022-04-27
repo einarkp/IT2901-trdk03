@@ -287,14 +287,14 @@ class PredicitonView(viewsets.ViewSet):
         accountings = Accounting.objects.filter(school=school_pk)
         for accounting in accountings:
             allAccountingValues.append(accounting.amount)
-
         coefficient = self.request.query_params.get('coefficient')
+        print(coefficient)
         if not coefficient:
-            coefficient = 0.05
+            # coefficient = 0.05
+            coefficient = 0.33
 
-        # should replace 0.05 with "coefficient
         arimaResults, confResults = arima(allAccountingValues, 12, 0, 1, coefficient)
-
+        print(confResults)
         # Delete all existing prediction values
         latestAccountingDate = Accounting.objects.filter(school=school_pk).latest("date").date
         Prediction.objects.filter(school=school_pk).delete()
@@ -398,6 +398,16 @@ def getAvailableYears(request):
     predictionYears = [date.year for date in predictionDates]
     allYears = sorted(list(set(accoutingYears) | set(predictionYears)))
     return JsonResponse(allYears, safe=False)
+
+def createAllPredictions(request):
+    # Creates predictions for all schools
+
+    # allScools = School.objects.all()
+
+    # for school in allScools:
+    #     print(school)
+    
+    return ""
 
 
 @csrf_exempt

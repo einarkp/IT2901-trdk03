@@ -10,7 +10,7 @@ export default function Pupils() {
   const [allPupilDataMap, setAllPupilDataMap] = useState(new Map()) // See createAllPupilGraphData()
   const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale when changing semesters.
 
-  const valueOfPupil = 70000
+  const valueOfPupil = 80000
   const valueOfSpesped = 100000
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function Pupils() {
     // Check if no data for current/upcoming autumn semester, if so, use prediction values (grade 0 -> last grade-1 of the previous spring semester)
     // This only needs to happen until the user clicks "Lagre" (at which is becomes a normal semester, pupil data is set in db), 
     // the idea is that the user can validate the prediction, changing values if needed, then
-    // when they click save, a predictedBudget db entry is created, which is included in the "Totaloversikt"-graph 
+    // when they click save, a predictedBudget db entry is created, which can be included in "totalOversikt"-graph
     const lastIncludedYear = new Date(availableSemesters[availableSemesters.length - 1]).getFullYear()
     const nextAutumnSemester = new Date(lastIncludedYear, 7, 1).toDateString()
     if (!allPupilDataMap.has(nextAutumnSemester)) {

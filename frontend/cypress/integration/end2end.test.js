@@ -62,8 +62,8 @@ describe('Navigate app', () => {
     // Click dropdown in nav
     cy.get('.Nav_usertext__Mlmct').click()
 
-    // Click "Min skole"
-    cy.get('a[href*="/minskole"]').click()
+    // Click "Last opp data"
+    cy.get('a[href*="/data"]').click()
 
     // Fileupload component should render
     cy.get('section')

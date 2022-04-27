@@ -1,163 +1,17 @@
+import { Switch } from '@mui/material';
 import React, { useState } from 'react';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, ComposedChart, Area } from 'recharts';
+import { Line, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, ComposedChart, Area } from 'recharts';
 import { DataKey } from 'recharts/types/util/types';
-import { combinedBudgetData, GraphDataProps } from '../Interfaces';
+import { combinedBudgetData } from '../Interfaces';
 import styles from '../styles/BudgetGraph.module.css'
 import {shortMonthFormatter, longMonthFormatter, amountFormatter} from "../utils/Formatters"
-
-interface uncertainty {
-  school: number;
-  date: Date;
-  amount: number | null;
-  prediction: number | null; 
-}
-
-
-const dummydata = {
-  "Accounting": [
-    {
-      "school": 31040,
-      "date": "2022-01-12",
-      "amount": 2426016.4346495713
-    },
-    {
-      "school": 31040,
-      "date": "2022-02-12",
-      "amount": 3006524.046121277
-    },
-  ],
-  "Budget": [
-    {
-      "school": 31040,
-      "date": "2021-02-04",
-      "amount": 30476000.0
-    }
-  ],
-  "BudgetChange": [],
-  "Prognosis": [],
-  "Prediction": [
-    {
-      "school": 31040,
-      "date": "2022-03-12",
-      "amount": 2988368.740213417
-    },
-    {
-      "school": 31040,
-      "date": "2022-04-12",
-      "amount": 2645581.273558945
-    },
-    {
-      "school": 31040,
-      "date": "2022-05-12",
-      "amount": 1824685.4086115295
-    },
-    {
-      "school": 31040,
-      "date": "2022-06-12",
-      "amount": 1360669.8196556044
-    },
-    {
-      "school": 31040,
-      "date": "2022-07-12",
-      "amount": 2654503.7947538886
-    },
-    {
-      "school": 31040,
-      "date": "2022-08-12",
-      "amount": 3274943.7197576854
-    },
-    {
-      "school": 31040,
-      "date": "2022-09-12",
-      "amount": 3340776.920716508
-    },
-    {
-      "school": 31040,
-      "date": "2022-10-12",
-      "amount": 2968126.4624555605
-    },
-    {
-      "school": 31040,
-      "date": "2022-11-12",
-      "amount": 1540675.787442268
-    },
-    {
-      "school": 31040,
-      "date": "2022-12-12",
-      "amount": 2038780.100294605
-    },
-    {
-      "school": 31040,
-      "date": "2023-01-12",
-      "amount": 2038780.100294605
-    }
-  ],
-  "uncertainty": [
-    {
-      "school": 31040,
-      "date": "2022-03-12",
-      "amount": [ 1988368.740213417, 3988368.740213417 ] 
-    },
-    {
-      "school": 31040,
-      "date": "2022-04-12",
-      "amount": [2645581.273558945, 2645581.273558945]
-    },
-    {
-      "school": 31040,
-      "date": "2022-05-12",
-      "amount": [1824685.4086115295, 1824685.4086115295]
-    },
-    {
-      "school": 31040,
-      "date": "2022-06-12",
-      "amount": [1360669.8196556044, 1360669.8196556044]
-    },
-    {
-      "school": 31040,
-      "date": "2022-07-12",
-      "amount": [2654503.7947538886, 2654503.7947538886]
-    },
-    {
-      "school": 31040,
-      "date": "2022-08-12",
-      "amount": [3274943.7197576854, 3274943.7197576854]
-    },
-    {
-      "school": 31040,
-      "date": "2022-09-12",
-      "amount": [3340776.920716508, 3340776.920716508]
-    },
-    {
-      "school": 31040,
-      "date": "2022-10-12",
-      "amount": [2968126.4624555605, 2968126.4624555605]
-    },
-    {
-      "school": 31040,
-      "date": "2022-11-12",
-      "amount": [1540675.787442268, 1540675.787442268]
-    },
-    {
-      "school": 31040,
-      "date": "2022-12-12",
-      "amount": [2038780.100294605, 2038780.100294605]
-    },
-    {
-      "school": 31040,
-      "date": "2023-01-12",
-      "amount": [2038780.100294605, 2038780.100294605]
-    }
-  ]
-}
-
 
 export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth: any, data: any, oldData: any}) {
 
   const [hideCumulativeAccounting, setHideCumulativeAccounting] = useState(false);
   const [hideAccounting, setHideAccounting] = useState(false);
-  const [hideCumulativeOldAccounting, setHideCumulativeOldAccounting] = useState(false);
-  const [hideOldAccounting, setHideOldAccounting] = useState(false);
+  const [hideCumulativeOldAccounting, setHideCumulativeOldAccounting] = useState(true);
+  const [hideOldAccounting, setHideOldAccounting] = useState(true);
   const [hideAccountingPrediction, setHideAccountingPrediction] = useState(false);
   const [hideCumulativeAccountingPrediction, setHideCumulativeAccountingPrediction] = useState(false);
   const [hideBudget, setHideBudget] = useState(false)
@@ -207,8 +61,18 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
 
   const combinedData = combineData(props.data, props.oldData)
 
+  function showPreviousYear() {
+    setHideCumulativeOldAccounting(!hideCumulativeOldAccounting)
+    setHideOldAccounting(!hideCumulativeOldAccounting)
+  }
+
   return (
     <div className={styles.container}>
+      <div style={{position: "absolute", top:"140px", display:"flex", alignItems:"baseline"}}>
+        <span>Vis fjoråret</span>
+      <Switch onClick={showPreviousYear}/>
+      </div>
+
       <ResponsiveContainer height={600} width="100%">
         <ComposedChart className={styles.lineChart} data={combinedData} margin={{ top: 20, right: 20, bottom: 0, left: 20 } }>
 
@@ -217,23 +81,24 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
           <Area type="monotone" dataKey="cumulativeUncertainty" name="Total usikkerhet" stroke="#8884d8" fill="red" opacity={0.2} hide={hideCumulativeAccounting} />
 
           {/* Old accounting */}
-          <Line strokeWidth="4" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false} activeDot={false}/>
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeOldAccounting" stroke="red" strokeOpacity="0.4" name="Fjorårets Totalregnskap" hide={hideCumulativeOldAccounting} dot={false} activeDot={false}/>
+          <Line strokeWidth="2.5" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false} activeDot={false}/>
+          <Line strokeWidth="2.5" type="monotone" dataKey="cumulativeOldAccounting" stroke="red" strokeOpacity="0.4" name="Fjorårets Totalregnskap" hide={hideCumulativeOldAccounting} dot={false} activeDot={false}/>
 
           {/* Current Accounting */}
-          <Line strokeWidth="4" type="monotone" dataKey="accounting" stroke="blue" name="Regnskap" hide={hideAccounting} 
-            dot={{fill:"blue", r:4}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccounting" stroke="red" name="Totalregnskap" hide={hideCumulativeAccounting} 
+          <Line strokeWidth="2.5" type="monotone" dataKey="accounting" stroke="#0099cc" name="Regnskap" hide={hideAccounting} 
+            dot={{fill:"blue", r:4}} activeDot={{fill:"#0099cc",stroke:"blue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
+          <Line strokeWidth="2.5" type="monotone" dataKey="cumulativeAccounting" stroke="#ff6600" name="Totalregnskap" hide={hideCumulativeAccounting} 
             dot={{fill:"red",r:4}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
           
           {/* Accounting prediction */}
-          <Line strokeWidth="4" type="monotone" dataKey="accountingPrediction" name="Regnskapsprognose" stroke="blue" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideAccounting} 
+          <Line strokeWidth="2.5" type="monotone" dataKey="accountingPrediction" name="Regnskapsprognose" stroke="#0099cc" strokeOpacity="0.6" strokeDasharray="6 3" hide={hideAccounting} 
             dot={{fill:"blue",r:4, opacity:0.6}} activeDot={{fill:"blue",stroke:"darkblue",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}} />
-          <Line strokeWidth="4" type="monotone" dataKey="cumulativeAccountingPrediction" name="Total regnskapsprognose" stroke="red" strokeOpacity="0.6" strokeDasharray="6 1" hide={hideCumulativeAccounting} 
-            dot={{fill:"red", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
+          
+          <Line strokeWidth="2.5" type="monotone" dataKey="cumulativeAccountingPrediction" name="Total regnskapsprognose" stroke="#ff6600" strokeOpacity="0.6" strokeDasharray="6 3" hide={hideCumulativeAccounting} 
+            dot={{fill:"#ff6600", r:4, opacity:0.6}} activeDot={{fill:"red",stroke:"darkred",strokeWidth: 3,r:7, cursor: "pointer",onClick: (event, payload) => toggleClick((payload as any).index)}}/>
           
           {/* Budget */}
-          <Line strokeWidth="3" type="stepAfter" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
+          <Line strokeWidth="2" type="stepAfter" stroke="black" strokeDasharray="5 5" dataKey={"budget"} name="Budsjett" 
             dot={false} hide={hideBudget}/>
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />

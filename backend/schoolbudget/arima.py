@@ -53,7 +53,7 @@ def arima(values, ar, i, ma, conf):
 
 # summarize confidence intervals
     ci = 0
-    ci = pred.conf_int(conf)
+    ci = pred.conf_int(alpha=conf)
 
     return forecast, ci
 

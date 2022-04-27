@@ -33,7 +33,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
     const [showUnsavedDataMessage, setShowUnsavedDataMessage] = useState(false)
     const [showFirstTimePredictionMessage, setShowFirstTimePredictionMessage] = useState(false)
     const prevAllPupilDataMap = usePrevious(props.allPupilDataMap)
-    const valueOfPupil = 70000
+    const valueOfPupil = 80000
     const valueOfSpesped = 100000
 
     function usePrevious(value: any) {
