@@ -10,7 +10,7 @@ export default function Pupils() {
   const [allPupilDataMap, setAllPupilDataMap] = useState(new Map()) // See createAllPupilGraphData()
   const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale when changing semesters.
 
-  const valueOfPupil = 50000
+  const valueOfPupil = 70000
   const valueOfSpesped = 100000
 
   useEffect(() => {
