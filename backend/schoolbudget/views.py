@@ -1,9 +1,7 @@
 import datetime
-from operator import indexOf
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login
-from idna import check_nfc
 from rest_framework import viewsets
 from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
@@ -19,19 +17,12 @@ from rest_framework import permissions
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import pandas as pd
-from pandas import read_excel
-import os
-<<<<<<< backend/schoolbudget/views.py
-import pandas as pd
 from pandas import read_excel
 import os
 
 
-=======
 from django.views.decorators.csrf import csrf_exempt
 import json
->>>>>>> backend/schoolbudget/views.py
 # Create your views here.
 
 class LoginView(KnoxLoginView):
