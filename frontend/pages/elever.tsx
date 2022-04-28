@@ -121,7 +121,7 @@ export default function Pupils() {
     if (!allPupilDataMap.has(nextAutumnSemester)) {
       // Check if we have spring values (and also prediction values)
       if (!allPupilDataMap.has(new Date(lastIncludedYear, 0, 1).toDateString())) return
-      const gradeZeroSpringValue = pupilData.find((pupilObject: { grade: number; year: string }) => pupilObject.grade == 0 && pupilObject.year == lastIncludedYear + "-01-01")
+      const gradeZeroSpringValue = pupilData.find((pupilObject: { grade: number; year: string }) => pupilObject.grade == 0 && pupilObject.year == lastIncludedYear-1 + "-01-01")  // OBS: notice "lastIncludedYear-1" here
       if (gradeZeroSpringValue === undefined) return
       // Create a new semester with the predicted values
       const newAutumnDate = new Date(lastIncludedYear, 7, 1).toDateString()

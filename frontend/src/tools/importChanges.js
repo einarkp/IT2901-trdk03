@@ -4,16 +4,15 @@ const axios = require("axios")
 
 async function insertToDb(change) {
   await axios.post('http://127.0.0.1:8000/changes/', change)
-      .then(function (response) {
-          console.log(response);
-      })
-      .catch(function (error) {
-          console.log(error);
-      });
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 }
 
 async function addChanges() {
-
   //requires data to be sorted by year
   var filePath = "frontend/src/tools/changes2018-2022.csv";
 
@@ -26,7 +25,6 @@ async function addChanges() {
 
   const changes = Array()
 
-
   for await (const line of rl) {
     if (line.includes("Versjon;Ansvar;Beløp;Oppdatert")) continue
     const data = line.split(";")
@@ -37,12 +35,11 @@ async function addChanges() {
     const dateIndexString = data[3].split("/")
     let year = Number(dateIndexString[2])
     let month = Number(dateIndexString[0])
-    
+
     if (year != version) {
       year = version
       month = 12
     }
-    
 
     let change = [
       {
@@ -66,23 +63,22 @@ async function addChanges() {
         exists = true
         break
       }
-
       // stops the loop if not in current year
       if (change.year != ch.year) {
         break
       }
     }
-
     // adds the change if one at same date didnt exist at beginning of list
     if (!exists) {
       changes.unshift(change)
     }
-    
-
-
   }
 
   await insertToDb(changes)
 }
 
-addChanges()
+// addChanges()
+
+module.exports = {
+  addChanges
+}

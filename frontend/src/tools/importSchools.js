@@ -39,4 +39,8 @@ async function addSchools() {
   }
 }
 
-addSchools()
+// addSchools()
+
+module.exports = {
+  addSchools
+}

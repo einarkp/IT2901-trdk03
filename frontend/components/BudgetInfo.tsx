@@ -23,7 +23,7 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
   const ResultsPositive = () => (
     <div className={styles.resultPositive}>
       <span className={styles.resultText}>Ja</span> <br />
-      <span> {isHistoricalView ? `Forbruket endte ${percentage}% under budsjettet` : `Forbruket kan gå ${percentage}% under budsjettet`}</span>
+      <span> {isHistoricalView ? `Forbruket endte ${percentage}% under budsjettet` : `Forbruket er projektert ${percentage}% under budsjettet`}</span>
     </div>
   )
   const ResultsNegative = () => (
@@ -188,11 +188,11 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
       <tbody>
         <tr>
           <td>Beste måned:</td>
-          <td>{splitAmountFormatter(Number(info.bestMonth.split(" ")[0])) + " " + info.bestMonth.split(" ")[1]}</td>
+          <td>{splitAmountFormatter(Number(info.bestMonth.split(" ")[0])) + " kr " + info.bestMonth.split(" ")[1]}</td>
         </tr>
         <tr>
           <td>Verste måned:</td>
-          <td>{splitAmountFormatter(Number(info.worstMonth.split(" ")[0])) + " " + info.worstMonth.split(" ")[1]}</td>
+          <td>{splitAmountFormatter(Number(info.worstMonth.split(" ")[0])) + " kr " + info.worstMonth.split(" ")[1]}</td>
         </tr>
       </tbody>
     </table>

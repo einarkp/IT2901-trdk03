@@ -43,4 +43,8 @@ async function addBudgets() {
     }
 }
 
-addBudgets()
+// addBudgets()
+
+module.exports = {
+    addBudgets
+  }

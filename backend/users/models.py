@@ -9,7 +9,7 @@ from django.dispatch import receiver
 class ExtendUser(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     user_type = models.CharField(max_length=30, null=True, default="principal")
-    schoolID = models.IntegerField(null=True, default=0)
+    schoolID = models.IntegerField(null=True, default=11010)
     
     def __str__(self):
         return self.user.username

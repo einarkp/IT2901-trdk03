@@ -44,4 +44,8 @@ async function addAccountings() {
     }
 }
 
-addAccountings()
+// addAccountings()
+
+module.exports = {
+    addAccountings
+}

@@ -20,7 +20,8 @@ async function insertToDb(pupilObject) {
 
 const objectsToAddToDb = []
 
-async function readPupilData(filename) {
+async function addPupils() {
+    const filename = "frontend/src/tools/Antall_elever_2018_2022.xlsx"
     const afterAllRows = new Promise((resolve, reject) => {
         var workbook = new Excel.Workbook();
         workbook.xlsx.readFile(filename)
@@ -64,4 +65,8 @@ async function readPupilData(filename) {
     })
 }
 
-readPupilData("frontend/src/tools/Antall_elever_2018_2022.xlsx")
+// addPupils()
+
+module.exports = {
+    addPupils
+}
