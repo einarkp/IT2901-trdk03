@@ -1,4 +1,4 @@
-import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
+import { ChangeEvent, Fragment, useContext, useEffect, useRef, useState } from "react";
 import { SemesterSelectorData } from "../Interfaces";
 import styles from '../styles/PupilSidePanel.module.css'
 import { UpdateDatabase } from "../utils/APIUtils";
@@ -8,6 +8,7 @@ import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { StoreContext } from '../pages/_app';
 
 export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData, refreshData: any }) {
     const [budgetChange, setBudgetChange] = useState(Number.POSITIVE_INFINITY)
@@ -35,6 +36,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
     const prevAllPupilDataMap = usePrevious(props.allPupilDataMap)
     const valueOfPupil = 80000
     const valueOfSpesped = 100000
+    const store = useContext(StoreContext)
 
     function usePrevious(value: any) {
         const ref = useRef();
@@ -272,6 +274,11 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             return
         }
         const oldAutmnValues = props.allPupilDataMap.get(props.currentSemester)  // (also prediction values)
+        if (store.activeUser?.schoolID === undefined || (oldAutmnValues[0].school != store.activeUser?.schoolID) && store.activeUser?.user_type != "admin") {
+            setErrorMessage("Du kan kun laste opp data for din egen skole")
+            setTimeout(() => { setErrorMessage("") }, 5000);
+            return
+        }
         const springDate = new Date("01-01-" + new Date(props.currentSemester).getFullYear()).toDateString()
         const oldSpringValues = props.allPupilDataMap.get(springDate)
         const object2send = {

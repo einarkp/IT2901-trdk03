@@ -3,7 +3,7 @@ import { CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip, BarC
 import styles from '../styles/BudgetGraph.module.css'
 
 export default function PupilSemsterGraph(props: { data: any, maxAmount: number, isPrediction: boolean }) {  // An alternative approach to displaying this is vertically: https://stackoverflow.com/a/66221135/14953338
-    const CandyBar = (props: { x: number; y: number; width: number; height: number; fill: string; }) => {
+    const PredictionBar = (props: { x: number; y: number; width: number; height: number; fill: string; }) => {
         const {
             x: oX,
             y: oY,
@@ -69,14 +69,14 @@ export default function PupilSemsterGraph(props: { data: any, maxAmount: number,
                         fill="#5874fc"
                         barSize={30}
                         // @ts-ignore
-                        shape={props.isPrediction ? <CandyBar /> : null}
+                        shape={props.isPrediction ? <PredictionBar /> : null}
                     />
                     <Bar dataKey="spesped" 
                     stackId="a" 
                     name={props.isPrediction ? "Predikerte spesped" : "Spesped"}
                     fill="#54c4fc"
                     // @ts-ignore
-                    shape={props.isPrediction ? <CandyBar /> : null}
+                    shape={props.isPrediction ? <PredictionBar /> : null}
                     />
                 </BarChart>
 

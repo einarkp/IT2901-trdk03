@@ -6,6 +6,8 @@ import Excel from "exceljs"
 import { CreatePredictions, UpdateDatabase } from "../utils/APIUtils";
 import { RotatingSquare } from "react-loader-spinner";
 import { StoreContext } from '../pages/_app';
+import accountingGuide from '../images/regnskapguide.png';
+import Image from 'next/image'
 
 export default function FileUpload() {
 
@@ -82,7 +84,7 @@ export default function FileUpload() {
             wb.xlsx.load(buffer).then(workbook => {
               const sheet = workbook.worksheets[0]
               const lengthOfWorksheet = sheet.actualRowCount
-              sheet.eachRow(async (row, rowIndex) => {   
+              sheet.eachRow(async (row, rowIndex) => {
                 // IMPORTANT: this only iterates rows that have values in every column that has a name, no specific error is throw for this. 
                 // This can just be mentioned in the user interface.
                 const currentDataRow: any = row.values  // List of row values e.g [19.02.2021, 23412424, 10100]
@@ -210,7 +212,7 @@ export default function FileUpload() {
   ]);
 
   return (
-    <div >
+    <div className={FileUploadStyles.content}>
       <section className={FileUploadStyles.dropzoneContainer}>
         <section>
           <div {...getRootProps({ style })}>
@@ -253,7 +255,18 @@ export default function FileUpload() {
         {successMessage !== "" && <div className={FileUploadStyles.successMessage}><p>{successMessage}</p></div>}
         {errorMessage !== "" && <div className={FileUploadStyles.errorMessage}><p>{errorMessage}</p></div>}
 
+
       </section>
+
+      <div>
+        <h1 className={FileUploadStyles.title}>Last opp ny data</h1>
+        <p>Du kan laste opp (eller oppdatere) regnskap- og budsjettdata fra Excel slik: </p>
+
+        <Image src={accountingGuide} alt="regnskapguide" />
+        <p>Datokolonnen kan erstattes med to separate kolonner for «Måned» og «År». <br />
+        For å laste opp budsjett bytter du ut "Regnskap"-kolonnen med "Budsjett".</p>
+        <p>Det kan kun eksistere én regnskapsverdi for en måned, og én budsjettverdi per år.</p>
+      </div>
     </div>
   );
 }

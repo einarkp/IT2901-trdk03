@@ -1,12 +1,26 @@
 .successMessage {
-    color: #4BB543;    /* <-- this green is disgusting */
+    color: #4BB543;
+    /* <-- this green is disgusting */
 }
 
 .errorMessage {
-    color: red;    /* <-- this green is disgusting */
+    color: red;
 }
 
-/* .submitButton {
-    background: "#3489eb";
-    color: "white";
-} */
+.content {
+    width: 50%;
+}
+
+@media screen and (max-width: 875px) {
+    .content {
+        width: 80%;
+    }
+}
+
+.title {
+    text-align: center;
+}
+
+.dropzoneContainer {
+    margin-bottom: 50px;
+}

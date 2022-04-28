@@ -32,8 +32,8 @@ async function readPupilData(filename) {
                     const values = row.values
                     // year = index 1
                     // schoolid as string == index 2
-                    // Autumn values index 4-11, then 12-15
-                    // Spring values index 17-24, then 25-28
+                    // Spring values index 4-11, then 12-15
+                    // Autumn values index 17-24, then 25-28
                     // If value is null/undefined/empty set to 0.
                     let currentObject = {
                         schoolId: Number(values[2]),

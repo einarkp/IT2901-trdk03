@@ -182,25 +182,27 @@ class PupilsView(viewsets.ViewSet):
         #     schoolId: 123,
         #     year: 2022,
         #     autumn: [123, 12, 143, 12, 123, 123, 123, 0, 0, 0],
-        #     spring: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        #     spring: [123, 2, 34, 4, 23, 6, 7, 0, 0, 0]
         # }
         for pupils in request.data:
             correspondingSchool = School.objects.filter(pk=pupils["schoolId"]).first()
             date2add = datetime.date(pupils["year"], 1, 1)
 
-            tempAutumn = pupils["autumn"]
-            tempSpring = pupils["spring"]
-            tempAutumn = [i for i in tempAutumn if i != 0]
-            tempSpring = [i for i in tempSpring if i != 0]
-            if len(tempAutumn) > 3:
-                tempAutumn.remove(max(tempAutumn))
-                tempAutumn.remove(min(tempAutumn))
-                tempSpring.remove(max(tempSpring))
-                tempSpring.remove(min(tempSpring))
-            averageAutumn = int(sum(tempAutumn)/len(tempAutumn))
-            averageSpring = int(sum(tempSpring)/len(tempSpring))
-            Pupils.objects.filter(school=correspondingSchool, year=date2add, grade=0).delete()
-            Pupils.objects.create(school=correspondingSchool, year=date2add, spring=averageSpring, autumn=averageAutumn, grade=0)
+
+            if (not all(v == 0 for v in pupils["autumn"])):
+                tempAutumn = pupils["autumn"]
+                tempSpring = pupils["spring"]
+                tempAutumn = [i for i in tempAutumn if i != 0]
+                tempSpring = [i for i in tempSpring if i != 0]
+                if len(tempAutumn) > 3:
+                    tempAutumn.remove(max(tempAutumn))
+                    tempAutumn.remove(min(tempAutumn))
+                    tempSpring.remove(max(tempSpring))
+                    tempSpring.remove(min(tempSpring))
+                averageAutumn = int(sum(tempAutumn)/len(tempAutumn))
+                averageSpring = int(sum(tempSpring)/len(tempSpring))
+                Pupils.objects.filter(school=correspondingSchool, year=date2add, grade=0).delete()
+                Pupils.objects.create(school=correspondingSchool, year=date2add, spring=averageSpring, autumn=averageAutumn, grade=0)
 
             # "pupils" data object contain arrays of amount of pupils for spring/autumn, iterate array and add pupils to corresponding grade based on index in array.
             #  Delete old entry if it exists, date/year&grade combo is unique (year field in db is a date object), should only ever exist one entry
@@ -259,6 +261,40 @@ class AccountingView(viewsets.ViewSet):
         return Response("Probably added some accounting values")
 
 
+def createPredictions(school_pk):
+    # Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
+    # 12 calculated values as predictions. Always replace existing prediction values.
+    try:
+        allAccountingValues = []
+        accountings = Accounting.objects.filter(school=school_pk)
+        for accounting in accountings:
+            allAccountingValues.append(accounting.amount)
+
+        coefficient = 0.33
+
+        arimaResults, confResults = arima(allAccountingValues, 12, 0, 1, coefficient)
+
+        # Delete all existing prediction values
+        latestAccountingDate = Accounting.objects.filter(school=school_pk).latest("date").date
+        Prediction.objects.filter(school=school_pk).delete()
+
+        # Add the new values from arima to prediction table, add year and month they belong to (date-object)
+        # day is irrelevant, start with latestAccountingDate+1month, then increment month
+        safeStartDate = date(latestAccountingDate.year, latestAccountingDate.month, 12)
+        currentPredictionDate = safeStartDate + relativedelta(months=1)
+        correspondingSchool = School.objects.filter(pk=school_pk).first()
+
+        sum = 0
+        for result in arimaResults:
+            c1 = confResults[sum, 0]
+            c2 = confResults[sum, 1]
+            sum += 1
+
+            Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=c1, upper_bound=c2, coefficient=coefficient)
+            currentPredictionDate += relativedelta(months=1)
+    except:
+        print("Could not create predictions for schoolID: " + str(school_pk))
+        
 class PredicitonView(viewsets.ViewSet):
     serializer_class = PredictionSerializer
 
@@ -280,40 +316,7 @@ class PredicitonView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def post(self, request, school_pk=None):
-        # Takes in a school-id, runs ARIMA on all accounting entries for that scool, saves the
-        # 12 calculated values as predictions. Always replace existing prediction values.
-
-        allAccountingValues = []
-        accountings = Accounting.objects.filter(school=school_pk)
-        for accounting in accountings:
-            allAccountingValues.append(accounting.amount)
-        coefficient = self.request.query_params.get('coefficient')
-        print(coefficient)
-        if not coefficient:
-            # coefficient = 0.05
-            coefficient = 0.33
-
-        arimaResults, confResults = arima(allAccountingValues, 12, 0, 1, coefficient)
-        print(confResults)
-        # Delete all existing prediction values
-        latestAccountingDate = Accounting.objects.filter(school=school_pk).latest("date").date
-        Prediction.objects.filter(school=school_pk).delete()
-
-        # Add the new values from arima to prediction table, add year and month they belong to (date-object)
-        # day is irrelevant, start with latestAccountingDate+1month, then increment month
-        safeStartDate = date(latestAccountingDate.year, latestAccountingDate.month, 12)
-        currentPredictionDate = safeStartDate + relativedelta(months=1)
-        correspondingSchool = School.objects.filter(pk=school_pk).first()
-
-        sum = 0
-        for result in arimaResults:
-            c1 = confResults[sum, 0]
-            c2 = confResults[sum, 1]
-            sum += 1
-
-            Prediction.objects.create(school=correspondingSchool, date=currentPredictionDate, amount=result, lower_bound=c1, upper_bound=c2, coefficient=coefficient)
-            currentPredictionDate += relativedelta(months=1)
-
+        createPredictions(school_pk)
         return Response("Probably created/updated some prediction values")
 
 
@@ -401,13 +404,10 @@ def getAvailableYears(request):
 
 def createAllPredictions(request):
     # Creates predictions for all schools
-
-    # allScools = School.objects.all()
-
-    # for school in allScools:
-    #     print(school)
-    
-    return ""
+    allScools = School.objects.all()
+    for school in allScools:
+        createPredictions(school.responsibility)
+    return HttpResponse("Probably created predictions for all schools")
 
 
 @csrf_exempt
