@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
 from .serializers import AccountingSerializer, BudgetChangeSerializer, BudgetPredictionSerializer, BudgetSerializer, PredictionSerializer, PrognosisSerializer, SchoolSerializer, PupilsSerializer
 from .models import Accounting, BudgetChange, BudgetPrediction, Prediction, Prognosis, School, Budget, Pupils
-from .arima import arima
+from .arima import arima, arimaTest
 from .knn import nearestNeighbor
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -22,16 +22,8 @@ import json
 import pandas as pd
 from pandas import read_excel
 import os
-<<<<<<< backend/schoolbudget/views.py
-import pandas as pd
-from pandas import read_excel
-import os
-
-
-=======
 from django.views.decorators.csrf import csrf_exempt
 import json
->>>>>>> backend/schoolbudget/views.py
 # Create your views here.
 
 class LoginView(KnoxLoginView):
@@ -394,7 +386,7 @@ class AllDataView(ObjectMultipleModelAPIViewSet):
                 {'queryset': Pupils.objects.filter(),
                  'serializer_class': PupilsSerializer},
             )
-        return querylist
+            return querylist
 
 def getAvailableYears(request):
     # Returns a list of years that has accounting/prediction data for given school
@@ -429,4 +421,57 @@ def postBudgetChanges(request):
                         budget=correspondingBudget, date=date, amount=change["amount"])
 
         return HttpResponse("Probably added some changes")
-    
+
+
+
+class evalSchool(ObjectMultipleModelAPIViewSet):
+
+    serializer_class = AccountingSerializer
+
+    def list(self, request, school_pk=None):
+        allSchoolList = []
+        arimaRes = []
+
+        schools = School.objects.filter()
+
+        for school in schools:
+            allSchoolList.append(school.responsibility)
+
+        for i in range (len(allSchoolList)):
+
+            allAccountingValues = []
+            accountings = Accounting.objects.filter(school=allSchoolList[i])
+
+            for accounting in accountings:
+                allAccountingValues.append(accounting.amount)
+
+            res = arimaTest(allAccountingValues,12,0,1)
+            arimaRes.append(res)
+
+        realLength = 0
+        perSum = 0
+        for i in range(len(arimaRes)):
+            if(arimaRes[i] == 1 or None):
+                print("null")
+            else:
+                realLength+=1
+
+                if arimaRes[i] > 100:
+                    yep = arimaRes[i] - 100 
+
+                else: 
+                    yep = 100 - arimaRes[i] 
+
+                perSum += yep
+
+        totalPer = perSum/realLength
+        return Response(arimaRes)
+
+    def retrieve(self, request, pk=None):
+        queryset = Accounting.objects.filter()
+        accounting = get_object_or_404(queryset, pk=pk)
+        serializer = AccountingSerializer(accounting)
+        virus = Response(serializer.data)
+
+        print(virus)
+        return Response(serializer.data)

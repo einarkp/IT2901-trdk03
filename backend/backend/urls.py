@@ -43,6 +43,9 @@ schools_router = routers.NestedSimpleRouter(router, r'schools', lookup='school')
 # /schools/{responsibility}/budgets/{pk}
 schools_router.register(r'budgets', views.BudgetView, basename='school-budgets')
 
+# /schools/{responsibility}/evalSchool
+schools_router.register(r'evalSchool', views.evalSchool, basename='evalSchool')
+
 # /schools/{responsibility}/budgetpredictions
 # /schools/{responsibility}/budgetpredictions/{pk}
 schools_router.register(r'budgetpredictions', views.BudgetPredictionView, basename='school-budgetpredictions')
