@@ -10,7 +10,7 @@ import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { StoreContext } from '../pages/_app';
 
-export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData, refreshData: any }) {
+export default function PupilSidePanel(props: { allPupilDataMap: any, currentSemester: string, semesterSelectorData: SemesterSelectorData, refreshData: any, schoolName: string }) {
     const [budgetChange, setBudgetChange] = useState(Number.POSITIVE_INFINITY)
     const [budgetChangePercent, setBudgetChangePercent] = useState(0)
     const [currentBudget, setCurrentBudget] = useState("")
@@ -154,6 +154,9 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
 
     const InfoPanel = () => (
         <div className={styles.container}>
+            <span style={{fontSize: "2em"}}>
+       {props.schoolName}
+      </span>
             {isPrediction ? showFirstTimePredictionMessage ? <span className={styles.topText}>Predikert budsjett</span> : <span className={styles.topText}>Estimert budsjett</span> : <span className={styles.topText}>Budsjett og endringer</span>}
             <table className={styles.infoTable}>
                 <tbody>

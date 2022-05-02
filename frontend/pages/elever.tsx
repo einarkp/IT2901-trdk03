@@ -9,7 +9,7 @@ export default function Pupils() {
   const [availableSemesters, setAvailableSemesters] = useState<SemesterSelectorData>({ allSemesters: [], currentSemester: "" })
   const [allPupilDataMap, setAllPupilDataMap] = useState(new Map()) // See createAllPupilGraphData()
   const [maxAmount, setMaxAmount] = useState(0) // Highest amount of pupils found, used to set the domain of the Y-axis so it does not rescale when changing semesters.
-
+  const [schoolName, setSchoolName] = useState("")
   const valueOfPupil = 80000
   const valueOfSpesped = 100000
 
@@ -20,6 +20,13 @@ export default function Pupils() {
   function refreshData() {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
+    getData("schools/" + params.id)
+                .then((response) => {
+                    const schoolName = response.data.name;
+                    setSchoolName(schoolName)
+                })
+                .catch((e) => { console.log(e) });
+
     getData("schools/" + params.id + "/pupils") // Get all pupil data for school. 
       .then((response) => {
         const pupilData = response.data
@@ -213,6 +220,7 @@ export default function Pupils() {
           maxAmount={maxAmount}
           allPupilDataMap={allPupilDataMap}
           refreshData={refreshData}
+          schoolName={schoolName}
         /> : null}
 
     </div>

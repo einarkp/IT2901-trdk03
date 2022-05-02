@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { BsQuestionCircle } from 'react-icons/bs';
 
 
-export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
+export const BudgetInfo = ({ data, info, oldData, currentMonth, schoolName }: any) => {
   const displayedYear = new Date(data[0].date).getFullYear()
   const currentYear = new Date().getFullYear()
   const isHistoricalView = displayedYear < currentYear
@@ -84,6 +84,8 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
   const [previousDisplayMonth, setPreviousDisplayMonth] = useState("...")
 
   const [isPrediction, setIsPrediction] = useState(false)
+
+  // const [schoolName, setSchoolName] = useState("")
 
   // Updates data when month changes
   // Currently, if a month is selected only the top part of the side panels values are updated if you change the year.
@@ -213,6 +215,9 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth }: any) => {
 
   return (
     <div className={styles.container}>
+      <span style={{fontSize: "2em", textDecoration: ""}}>
+       {schoolName}
+      </span>
       <span className={styles.topText} style={{ display: "flex", alignItems: "center" }}> {isHistoricalView ? "Gikk budsjettet rundt?" : "Vil budsjettet gå rundt?"}<HtmlTooltip
         title={
           <Fragment>

@@ -3,11 +3,12 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useDropzone, FileWithPath, FileRejection } from "react-dropzone";
 import FileUploadStyles from "../styles/FileUpload.module.css"
 import Excel from "exceljs"
-import { CreatePredictions, UpdateDatabase } from "../utils/APIUtils";
+import { CreatePredictions, getData, UpdateDatabase } from "../utils/APIUtils";
 import { RotatingSquare } from "react-loader-spinner";
 import { StoreContext } from '../pages/_app';
 import accountingGuide from '../images/regnskapguide.png';
 import Image from 'next/image'
+
 
 export default function FileUpload() {
 
@@ -16,10 +17,21 @@ export default function FileUpload() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false)
+  const [schoolName, setSchoolName] = useState("")
   let objectsToAddToDb: { type: string; data: { schoolId: number; month: number; year: number; amount: number; }; }[] = []
   let schoolId: number = 0
   const store = useContext(StoreContext)
   if (store.activeUser?.schoolID != 0) schoolId = Number(store.activeUser?.schoolID) // schoolId = 0 means no connected school
+
+  useEffect(() => {
+    getData("schools/" + schoolId)
+                .then((response) => {
+                    const schoolName = response.data.name;
+                    setSchoolName(schoolName)
+                })
+                .catch((e) => { console.log(e) });
+
+  })
 
   function processExcelRow(currentDataRow: any, metaInfoArr: string[], dataType: string, dataTypeColumnName: string) {
     if (schoolId === 0) throw "Brukeren din er ikke knyttet til en skole, kontakt administrator"
@@ -259,7 +271,7 @@ export default function FileUpload() {
       </section>
 
       <div>
-        <h1 className={FileUploadStyles.title}>Last opp ny data</h1>
+        <h1 className={FileUploadStyles.title}>Last opp ny data for {schoolName}</h1>
         <p>Du kan laste opp (eller oppdatere) regnskap- og budsjettdata fra Excel slik: </p>
 
         <Image src={accountingGuide} alt="regnskapguide" />

@@ -6,7 +6,7 @@ import { BudgetInfo } from './BudgetInfo'
 import YearSelector from './YearSelector'
 
 
-export default function GraphContainer({ data, info, setCurrentYear, yearSelectorData, oldData }: GraphProps) {
+export default function GraphContainer({ data, info, setCurrentYear, yearSelectorData, oldData, schoolName }: GraphProps) {
 
   const [currentMonth, setCurrentMonth] = useState(null)
 
@@ -19,7 +19,7 @@ export default function GraphContainer({ data, info, setCurrentYear, yearSelecto
         <BudgetGraph data={data} oldData={oldData} setCurrentMonth={setCurrentMonth} currentMonth={currentMonth} />
       </div>
       <div className={ContainerStyle.info}>
-        <BudgetInfo info={info} data={data} oldData={oldData} currentMonth={currentMonth} />
+        <BudgetInfo info={info} data={data} oldData={oldData} currentMonth={currentMonth} schoolName={schoolName} />
       </div>
     </div>
   )

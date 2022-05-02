@@ -12,6 +12,7 @@ export default function TotalOversikt() {
   const [infoData, setInfoData]: any[] = useState([])
   const [yearSelectorData, setYearSelectorData] = useState({ allYears: [-1], currentYear: new Date().getFullYear() - 1 })
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [schoolName, setSchoolName] = useState("")
 
   function combineAllDataApiResponse(allData: any) {
     // Combine the response arrays from backend into a format that fits Recharts.
@@ -106,7 +107,12 @@ export default function TotalOversikt() {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
-
+    getData("schools/" + params.id)
+                .then((response) => {
+                    const schoolName = response.data.name;
+                    setSchoolName(schoolName)
+                })
+                .catch((e) => { console.log(e) });
 
     // Get data for yearselector
     if (yearSelectorData.allYears.includes(-1)) {
@@ -147,7 +153,7 @@ export default function TotalOversikt() {
       [currentYear]);
 
   return (<>
-    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} />}
+    {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} schoolName={schoolName} />}
     <Recommended />
   </>
   )

@@ -82,7 +82,8 @@ export type GraphProps = {
   oldData: Budget[],
   info: GraphInfoProps,
   setCurrentYear: (param: any) => void,  // TODO: look into replacing this with React.Dispatch<React.SetStateAction<number>>, or something similair
-  yearSelectorData: YearSelectorData
+  yearSelectorData: YearSelectorData,
+  schoolName: string
 };
 
 export type schoolData = {
