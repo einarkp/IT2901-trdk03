@@ -1,0 +1,19 @@
+.tooltip {
+  background-color: white;
+  padding: 0px 8px;
+  border: 1px solid grey;
+  margin: 0;
+}
+.header {
+  font-weight: bold;
+  margin: 3px;
+  padding: 3px;
+}
+.value {
+  margin: 3px;
+  padding: 3px;
+}
+.number {
+  font-style: italic;
+  font-weight: 500;
+}

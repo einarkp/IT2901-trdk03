@@ -4,7 +4,8 @@ import { Line, CartesianGrid, XAxis, YAxis, Legend, ResponsiveContainer, Tooltip
 import { DataKey } from 'recharts/types/util/types';
 import { combinedBudgetData } from '../Interfaces';
 import styles from '../styles/BudgetGraph.module.css'
-import {shortMonthFormatter, longMonthFormatter, amountFormatter} from "../utils/Formatters"
+import {shortMonthFormatter, longMonthFormatter, amountFormatter, splitAmountFormatter} from "../utils/Formatters"
+import CustomTooltip from "./GraphTooltip"
 
 export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth: any, data: any, oldData: any}) {
 
@@ -77,8 +78,8 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
         <ComposedChart className={styles.lineChart} data={combinedData} margin={{ top: 20, right: 20, bottom: 0, left: 20 } }>
 
           {/* Uncertainty areas */}
-          <Area type="monotone" dataKey="uncertainty" name="Usikkerhet" stroke="#8884d8" fill="blue" opacity={0.2} hide={hideAccounting}  />
-          <Area type="monotone" dataKey="cumulativeUncertainty" name="Total usikkerhet" stroke="#8884d8" fill="red" opacity={0.2} hide={hideCumulativeAccounting} />
+          <Area type="monotone" dataKey="uncertainty" stroke="#8884d8" fill="blue" opacity={0.2} name="Usikkerhet" hide={hideAccounting}  />
+          <Area type="monotone" dataKey="cumulativeUncertainty" stroke="#8884d8" fill="red" opacity={0.2} name="Total usikkerhet" hide={hideCumulativeAccounting} />
 
           {/* Old accounting */}
           <Line strokeWidth="2.5" type="monotone"  dataKey="oldAccounting" stroke="blue" strokeOpacity="0.4" name="Fjorårets Regnskap" hide={hideOldAccounting} dot={false} activeDot={false}/>
@@ -103,7 +104,7 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis dataKey="date" tickFormatter={shortMonthFormatter} textAnchor="end" />
-          <Tooltip labelFormatter={longMonthFormatter} />
+          <Tooltip labelFormatter={longMonthFormatter} animationDuration={400} content={CustomTooltip} cursor={{ stroke: 'darkgrey', strokeWidth: 2, opacity: 0.8 }}  />
           <YAxis tickFormatter={amountFormatter} />
           <Legend verticalAlign="bottom" onClick={handleHideLine} iconType="line" />
         </ComposedChart>
