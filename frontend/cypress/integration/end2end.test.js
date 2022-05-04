@@ -59,6 +59,18 @@ describe('Navigate app', () => {
     // Pupil graph should load
     cy.get('.PupilSidePanel_topText__W_FOD')
 
+    // Click on verify pupils
+    cy.get('.PupilSidePanel_button__qFJ4T').click()
+
+    //Change pupil count of first class to 40
+    cy.get('.PupilSidePanel_inputField__mYoyI').first().type("40")
+
+    // Change amount should be visible
+    cy.get('.budgetChangeAmount')
+
+    //Go back to default side panel page
+    cy.get('.PupilSidePanel_button__qFJ4T').first().click()
+
     // Click dropdown in nav
     cy.get('.Nav_usertext__Mlmct').click()
 
