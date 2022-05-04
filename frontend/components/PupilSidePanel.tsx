@@ -409,7 +409,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
                         {predictedBudget != 0 ?
                             <tr>
                                 <td>Endring: </td>
-                                <td><span style={{ color: predictedPercentChange < 0 ? "red" : "#3A933E" }}>{" " + splitAmountFormatter(predictedBudget - Number(currentBudget.replace("kr", "").replace(/\s/g, ""))) + "kr"} {"(" + predictedPercentChange + "%)"} </span></td>
+                                <td><span className="budgetChangeAmount" style={{ color: predictedPercentChange < 0 ? "red" : "#3A933E" }}>{" " + splitAmountFormatter(predictedBudget - Number(currentBudget.replace("kr", "").replace(/\s/g, ""))) + "kr"} {"(" + predictedPercentChange + "%)"} </span></td>
                             </tr>
                             : null}
                     </tbody>
