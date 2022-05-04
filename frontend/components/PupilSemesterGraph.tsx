@@ -46,11 +46,6 @@ export default function PupilSemsterGraph(props: { data: any, maxAmount: number,
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="gradeLabel" />
-                    {/* <YAxis>
-                        <Label angle={270} position='left' style={{ textAnchor: 'middle' }}> 
-                            Antall elever
-                        </Label>
-                    </YAxis> */}
                     <YAxis domain={[0, props.maxAmount]} />
                     <Tooltip />
                     <Legend />

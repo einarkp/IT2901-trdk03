@@ -24,7 +24,7 @@ export default function SemesterSelector(props: { semesterSelector: any, semeste
 
     }, [currentSemester])
 
-    function handleIncrement() {
+    function handleIncrement() {  // Increment semester
         let lastSemesterValue = props.semesterSelectorData.allSemesters[props.semesterSelectorData.allSemesters.length - 1]
         if (currentSemester != lastSemesterValue) {
             let nextSemester = props.semesterSelectorData.allSemesters[props.semesterSelectorData.allSemesters.indexOf(currentSemester) + 1]
@@ -35,7 +35,7 @@ export default function SemesterSelector(props: { semesterSelector: any, semeste
         }
         setLeftArrowDisabled(false)
     }
-    function handleDecrement() {
+    function handleDecrement() {  // decrement semester
         if (currentSemester != props.semesterSelectorData.allSemesters[0]) {
           let lastSemester= props.semesterSelectorData.allSemesters[props.semesterSelectorData.allSemesters.indexOf(currentSemester) - 1]
           props.semesterSelector(lastSemester)

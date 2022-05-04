@@ -17,15 +17,15 @@ export default function Pupils() {
     refreshData()
   }, [])
 
-  function refreshData() {
+  function refreshData() {  // get/refresh data used in the graph/sidepanel 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     getData("schools/" + params.id)
-                .then((response) => {
-                    const schoolName = response.data.name;
-                    setSchoolName(schoolName)
-                })
-                .catch((e) => { console.log(e) });
+      .then((response) => {
+        const schoolName = response.data.name;
+        setSchoolName(schoolName)
+      })
+      .catch((e) => { console.log(e) });
 
     getData("schools/" + params.id + "/pupils") // Get all pupil data for school. 
       .then((response) => {
@@ -119,16 +119,16 @@ export default function Pupils() {
       return new Date(a).getTime() - new Date(b).getTime()
     })
 
-    // Check if no data for current/upcoming autumn semester, if so, use prediction values (grade 0 -> last grade-1 of the previous spring semester)
+    // Check if no data for current/upcoming autumn semester, if so, use prediction values (grade 0 -> last grade-1 of the spring semester)
     // This only needs to happen until the user clicks "Lagre" (at which is becomes a normal semester, pupil data is set in db), 
     // the idea is that the user can validate the prediction, changing values if needed, then
-    // when they click save, a predictedBudget db entry is created, which can be included in "totalOversikt"-graph
+    // when they click save, a predictedBudget db entry is created, which can be included in the "totalOversikt"-graph
     const lastIncludedYear = new Date(availableSemesters[availableSemesters.length - 1]).getFullYear()
     const nextAutumnSemester = new Date(lastIncludedYear, 7, 1).toDateString()
     if (!allPupilDataMap.has(nextAutumnSemester)) {
       // Check if we have spring values (and also prediction values)
       if (!allPupilDataMap.has(new Date(lastIncludedYear, 0, 1).toDateString())) return
-      const gradeZeroSpringValue = pupilData.find((pupilObject: { grade: number; year: string }) => pupilObject.grade == 0 && pupilObject.year == lastIncludedYear-1 + "-01-01")  // OBS: notice "lastIncludedYear-1" here
+      const gradeZeroSpringValue = pupilData.find((pupilObject: { grade: number; year: string }) => pupilObject.grade == 0 && pupilObject.year == lastIncludedYear - 1 + "-01-01")  // OBS: notice "lastIncludedYear-1" here
       if (gradeZeroSpringValue === undefined) return
       // Create a new semester with the predicted values
       const newAutumnDate = new Date(lastIncludedYear, 7, 1).toDateString()
@@ -166,7 +166,7 @@ export default function Pupils() {
         return accumulator + object.spesped;
       }, 0);
       allPupilDataMap.get(newAutumnDate).forEach((pupilObject: { predictedBudget: number }) => {
-        pupilObject.predictedBudget = newPupilAmount*valueOfPupil + newSpespedAmount*valueOfSpesped
+        pupilObject.predictedBudget = newPupilAmount * valueOfPupil + newSpespedAmount * valueOfSpesped
       });
       availableSemesters.push(newAutumnDate)
     }
@@ -178,7 +178,7 @@ export default function Pupils() {
       let predictedBudget: number = 0
       if (!nextAutumnData[0].isPrediction) {
         const predictedBudgetObject = predictedBudgets.find((predictedBudgetObject: { date: any }) => new Date(predictedBudgetObject.date).getFullYear() == lastIncludedYear)  // This should always exist
-        if (predictedBudgetObject === undefined) { 
+        if (predictedBudgetObject === undefined) {
           // Should never happen "in real life", this means "predicted" pupils have been added, but no predicted budget
           // This does however happen with the current data upload, as the pupil data sheets contain copy pasted values for autumn when only the spring values are real.
           const newPupilAmount = allPupilDataMap.get(nextAutumnSemester).reduce((accumulator: any, object: { pupils: any }) => {
@@ -188,8 +188,8 @@ export default function Pupils() {
             return accumulator + object.spesped;
           }, 0);
           allPupilDataMap.get(nextAutumnSemester).forEach((pupilObject: { predictedBudget: number, isPrediction: boolean }) => {
-            pupilObject.predictedBudget = newPupilAmount*valueOfPupil + newSpespedAmount*valueOfSpesped,
-            pupilObject.isPrediction = true
+            pupilObject.predictedBudget = newPupilAmount * valueOfPupil + newSpespedAmount * valueOfSpesped,
+              pupilObject.isPrediction = true
           });
         } else {
           predictedBudget = predictedBudgetObject.amount

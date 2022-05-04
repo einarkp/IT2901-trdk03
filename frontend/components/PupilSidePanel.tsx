@@ -328,7 +328,9 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             setTimeout(() => { setErrorMessage("") }, 5000);
         })
     }
+    // @ts-ignore: this tooltip component is not very TypeScript friendly
     const HtmlTooltip = styled(({ className, ...props }) => (
+            // @ts-ignore: this tooltip component is not very TypeScript friendly
         <Tooltip {...props} classes={{ popper: className }} />
     ))(({ theme }) => ({
         [`& .${tooltipClasses.tooltip}`]: {
@@ -345,6 +347,7 @@ export default function PupilSidePanel(props: { allPupilDataMap: any, currentSem
             {showPupilForm ? <div className={styles.container}>
                 {showFirstTimePredictionMessage ? <span className={styles.topText} style={{ display: "flex", alignItems: "center" }}>Verifiser predikert elevantall  <div style={{ width: "20px" }}>
                     <HtmlTooltip
+                        // @ts-ignore: this tooltip component is not very TypeScript friendly
                         title={
                             <Fragment>
                                 <Typography color="inherit">Elevtallene på denne siden er prediksjoner. Verifiser tallene og trykk lagre for å se estimert budsjett.</Typography>

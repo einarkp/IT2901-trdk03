@@ -70,9 +70,7 @@ const Header: React.FC = observer(() => {
               </Box>
             </ClickAwayListener>
           </li>
-
         </ul>
-
       </nav>
 
     );

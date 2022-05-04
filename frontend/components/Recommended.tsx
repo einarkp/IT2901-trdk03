@@ -2,7 +2,7 @@ import { getData } from '../utils/APIUtils';
 import { useEffect, useState } from 'react'
 import { schoolData } from '../Interfaces'
 import styles from '../styles/rec.module.css'
-import * as React from 'react';
+import React from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -35,8 +35,6 @@ export default function Recommended() {
         getData("schools/" + params.id)
             .then((response) => {
                 const schooldata: schoolData = response.data
-                console.log("1", schooldata)
-
                 if (schooldata.schoolSimiliar != []) {
                     getSchoolArr(schooldata.schoolSimiliar)
                 }
@@ -61,7 +59,7 @@ export default function Recommended() {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button style={{ border: "solid 1.5px" }}><a href="#" onClick={() => window.location.href = "/totalOversikt?id="+item.responsibility}>Se denne skolen</a></Button>
+                                    <Button style={{ border: "solid 1.5px" }}><a href="#" onClick={() => window.location.href = "/totalOversikt?id=" + item.responsibility}>Se denne skolen</a></Button>
                                 </CardActions>
                             </Card></div>
                     })}

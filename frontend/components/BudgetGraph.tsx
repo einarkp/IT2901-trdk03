@@ -29,7 +29,7 @@ export default function BudgetGraph(props: { setCurrentMonth: any, currentMonth:
     if (clickedLegend === "budget") setHideBudget(!hideBudget)
   }
 
-  function toggleClick(month: any) {
+  function toggleClick(month: number) {
     if (month == props.currentMonth) {
       props.setCurrentMonth(null)
     } else {
