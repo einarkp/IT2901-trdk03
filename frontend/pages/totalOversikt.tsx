@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import GraphContainer from '../components/GraphContainer'
 import Recommended from '../components/Recommended'
-import { GraphInfoProps, AllDataApiResponse, schoolData } from '../Interfaces';
+import { GraphInfoProps, AllDataApiResponse } from '../Interfaces';
 import { getData } from '../utils/APIUtils';
 import { longMonthFormatter } from "../utils/Formatters"
 
@@ -21,7 +21,7 @@ export default function TotalOversikt() {
     const accountingArr = allData.Accounting
     const predictionArr = allData.Prediction
     const budget = allData.Budget.length !== 0 ? allData.Budget[0].amount : null
-    const budgetChanges = allData.BudgetChange 
+    const budgetChanges = allData.BudgetChange
     predictionArr.forEach((element: { amount: number; isPrediction: boolean; }) => {  // Need some way of differentiating prediction values
       element.amount = Math.floor(element.amount)
       element.isPrediction = true
@@ -37,9 +37,9 @@ export default function TotalOversikt() {
     let highestValueObject = { amount: Number.NEGATIVE_INFINITY, date: null }  // Aka worst month
     let lowestValueObject = { amount: Number.POSITIVE_INFINITY, date: null }    // Aka best month 
     let length = concatinatedArr.length > 12 ? 12 : concatinatedArr.length
-   
+
     let currentBudget = budget // the current school budget
-    let unappliedChanges = budgetChanges // unaplied changes
+    let unappliedChanges = budgetChanges // unapplied changes
 
     for (let index = 0; index < length; index++) {
       const currentAmount = Math.floor(concatinatedArr[index].amount)
@@ -62,10 +62,10 @@ export default function TotalOversikt() {
         const date = new Date(change['date'])
         if (date.getMonth() <= index) {
           currentBudget += change['amount']
-          unappliedChanges = unappliedChanges.filter(function(el: any) { return el.date != change['date']; })
+          unappliedChanges = unappliedChanges.filter(function (el: any) { return el.date != change['date']; })
         }
       }
-      
+
       if (currentAmount > highestValueObject.amount) highestValueObject = concatinatedArr[index]
       if (currentAmount < lowestValueObject.amount) lowestValueObject = concatinatedArr[index]
       const isPrediction = concatinatedArr[index].hasOwnProperty("isPrediction")
@@ -82,7 +82,7 @@ export default function TotalOversikt() {
       }
       combinedDataArr.push(objectToAdd)
     }
-    
+
 
     // update budget based on budget change
     // Set values in right side info panel:
@@ -108,49 +108,47 @@ export default function TotalOversikt() {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     getData("schools/" + params.id)
-                .then((response) => {
-                    const schoolName = response.data.name;
-                    setSchoolName(schoolName)
-                })
-                .catch((e) => { console.log(e) });
+      .then((response) => {
+        const schoolName = response.data.name;
+        setSchoolName(schoolName)
+      })
+      .catch((e) => { console.log(e) });
 
     // Get data for yearselector
     if (yearSelectorData.allYears.includes(-1)) {
       getData("getAvailableYears/?schoolid=" + params.id)
         .then((response) => {
           const availableYears = response.data
-          setYearSelectorData({ allYears: availableYears, currentYear: availableYears[availableYears.length - 1] })
-          setCurrentYear(availableYears[availableYears.length - 1])
+          setYearSelectorData({ allYears: availableYears, currentYear: availableYears[availableYears.length - 2] })
+          setCurrentYear(availableYears[availableYears.length - 2])
         })
         .catch((e) => { console.log(e) });
     }
 
-        getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
+    getData("all-data?year=" + Number(currentYear - 1) + "&school=" + params.id)
+      .then((response) => {
+        const AllDataApiResponse: AllDataApiResponse = response.data
+        if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
+          console.log("Found no school with id " + params.id)
+        }
+        else {
+          // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
+          setOldData(combineAllDataApiResponse(AllDataApiResponse))
+        }
+        getData("all-data?year=" + currentYear + "&school=" + params.id)
           .then((response) => {
             const AllDataApiResponse: AllDataApiResponse = response.data
             if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
-              // TODO: could not find data for specified school id, show some kind of feedback.
               console.log("Found no school with id " + params.id)
-            }
-            else {
+            } else {
               // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
-              setOldData(combineAllDataApiResponse(AllDataApiResponse))
+              setGraphData(combineAllDataApiResponse(AllDataApiResponse))
             }
-            getData("all-data?year=" + currentYear + "&school=" + params.id)
-              .then((response) => {
-                const AllDataApiResponse: AllDataApiResponse = response.data
-                if (AllDataApiResponse.Accounting.length === 0 && AllDataApiResponse.Prediction.length === 0) {
-                  // TODO: could not find data for specified school id, show some kind of feedback.
-                  console.log("Found no school with id " + params.id)
-                } else {
-                  // response contains 3 arrays (budget, accounting, prediction) that need to be joined:
-                  setGraphData(combineAllDataApiResponse(AllDataApiResponse))
-                }
-              })
           })
-          .catch((e) => { console.log(e) });
-      }, 
-      [currentYear]);
+      })
+      .catch((e) => { console.log(e) });
+  },
+    [currentYear]);
 
   return (<>
     {graphData.length != 0 && <GraphContainer data={graphData} info={infoData} oldData={oldData} setCurrentYear={setCurrentYear} yearSelectorData={yearSelectorData} schoolName={schoolName} />}

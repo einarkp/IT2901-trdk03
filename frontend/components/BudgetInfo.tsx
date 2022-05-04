@@ -68,9 +68,15 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth, schoolName }: an
   if (currentMonth == null) {
     normalView = true
   }
-
-  if (!normalView && data[currentMonth].accounting == null) {
+  
+  if (currentMonth < data.length) {
+    if (!normalView && data[currentMonth].accounting == null) {
+      prediction = true
+    }
+  }
+  else {
     prediction = true
+    normalView = true
   }
 
   const [previousAccounting, setPreviousAccounting] = useState("...")
@@ -80,20 +86,13 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth, schoolName }: an
   const [accountingPercent, setAccountingPercent] = useState(Number)
   const [cumulativeAccountingPercent, setCumulativeAccountingPercent] = useState(Number)
   const [budgetPercent, setBudgetPercent] = useState(Number)
-  // const [displayMonth, setDisplayMonth] = useState("...")
   const [previousDisplayMonth, setPreviousDisplayMonth] = useState("...")
 
-  const [isPrediction, setIsPrediction] = useState(false)
-
-  // const [schoolName, setSchoolName] = useState("")
-
   // Updates data when month changes
-  // Currently, if a month is selected only the top part of the side panels values are updated if you change the year.
-  // This allows "locking-in" a previous value you might want to compare, but could also just automatically update both parts when changing year.
   useEffect(() => {
     if (currentMonth != null) {
+      if (data.length < currentMonth) return
       const year = data[currentMonth].date.getFullYear()
-      const date = new Date(year, currentMonth, 1)
       const prevDate = new Date(year - 1, currentMonth, 1)
       // setDisplayMonth(longMonthFormatter(date)) 
       setPreviousDisplayMonth(longMonthFormatter(prevDate))
@@ -200,7 +199,9 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth, schoolName }: an
     </table>
   )
 
+  // @ts-ignore
   const HtmlTooltip = styled(({ className, ...props }) => (
+  // @ts-ignore
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
@@ -219,6 +220,7 @@ export const BudgetInfo = ({ data, info, oldData, currentMonth, schoolName }: an
        {schoolName}
       </span>
       <span className={styles.topText} style={{ display: "flex", alignItems: "center" }}> {isHistoricalView ? "Gikk budsjettet rundt?" : "Vil budsjettet gå rundt?"}<HtmlTooltip
+        // @ts-ignore
         title={
           <Fragment>
             <Typography color="inherit">{

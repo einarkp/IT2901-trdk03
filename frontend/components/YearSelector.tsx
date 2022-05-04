@@ -4,8 +4,7 @@ import { BsArrowRightCircle, BsArrowLeftCircle } from 'react-icons/bs';
 import { YearSelectorData } from '../Interfaces';
 import YearSelectorStyle from '../styles/YearSelector.module.css'
 
-
-// Could definitely pick better arrows: https://react-icons.github.io/react-icons/search?q=arrow
+// Could probably pick better arrow icons: https://react-icons.github.io/react-icons/search?q=arrow
 
 export default function YearSelector(props: { yearSelector: any, yearSelectorData: YearSelectorData }) {
   const [displayedYear, setDisplayedYear]: any[] = useState(props.yearSelectorData.currentYear)

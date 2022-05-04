@@ -25,11 +25,11 @@ export default function FileUpload() {
 
   useEffect(() => {
     getData("schools/" + schoolId)
-                .then((response) => {
-                    const schoolName = response.data.name;
-                    setSchoolName(schoolName)
-                })
-                .catch((e) => { console.log(e) });
+      .then((response) => {
+        const schoolName = response.data.name;
+        setSchoolName(schoolName)
+      })
+      .catch((e) => { console.log(e) });
 
   })
 
@@ -97,8 +97,7 @@ export default function FileUpload() {
               const sheet = workbook.worksheets[0]
               const lengthOfWorksheet = sheet.actualRowCount
               sheet.eachRow(async (row, rowIndex) => {
-                // IMPORTANT: this only iterates rows that have values in every column that has a name, no specific error is throw for this. 
-                // This can just be mentioned in the user interface.
+                // NOTE: this only iterates rows that have values in every column that has a name. 
                 const currentDataRow: any = row.values  // List of row values e.g [19.02.2021, 23412424, 10100]
                 if (rowIndex === 1) {  // Set metaInfoArr containing column names
                   metaInfoArr = []
@@ -136,7 +135,7 @@ export default function FileUpload() {
       if (errorMessage !== "") throw "Error"
       let needToCreateNewPredictions = false
       let schoolsToCreatePredictions: number[] = []
-      for (const object of objectsToAddToDb) {  // TODO: need to handle db insert error? Maybe not that useful?
+      for (const object of objectsToAddToDb) {  
         if (object.type === "accountings") {
           needToCreateNewPredictions = true
           if (!schoolsToCreatePredictions.includes(object.data.schoolId)) schoolsToCreatePredictions.push(object.data.schoolId)
@@ -158,7 +157,6 @@ export default function FileUpload() {
       objectsToAddToDb = []
 
     }).catch((error) => {
-      // Error happened:
       console.log(error)
       setFiles([])
       setRejectedFiles([])
@@ -276,7 +274,7 @@ export default function FileUpload() {
 
         <Image src={accountingGuide} alt="regnskapguide" />
         <p>Datokolonnen kan erstattes med to separate kolonner for «Måned» og «År». <br />
-        For å laste opp budsjett bytter du ut "Regnskap"-kolonnen med "Budsjett".</p>
+          For å laste opp budsjett bytter du ut "Regnskap"-kolonnen med "Budsjett".</p>
         <p>Det kan kun eksistere én regnskapsverdi for en måned, og én budsjettverdi per år.</p>
       </div>
     </div>

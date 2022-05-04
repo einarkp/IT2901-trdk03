@@ -9,8 +9,8 @@ import { observer } from "mobx-react"
 const LoginForm: React.FC = observer(() => {
     const store = useContext(StoreContext)
     const [invalidLogin, setInvalidLogin] = useState(false)
-  return (
-    <Formik
+    return (
+        <Formik
             initialValues={{
                 username: '',
                 password: '',
@@ -19,20 +19,20 @@ const LoginForm: React.FC = observer(() => {
                 await loginRequest(JSON.stringify(values, null, 2))
                     .then((r) => {
                         var response = r as LoginDetails
-                        if(response && response.successful){
-                            localStorage.setItem("token", response.token ? JSON.stringify({"token": response.token, "expiry": response.expiry}) : "")
+                        if (response && response.successful) {
+                            localStorage.setItem("token", response.token ? JSON.stringify({ "token": response.token, "expiry": response.expiry }) : "")
                             localStorage.setItem("user", response.user ? JSON.stringify(response.user) : "")
                             localStorage.setItem("password", values.password)
 
                             var activeUser: User = response.user as User;
                             store.setActiveUser(activeUser)
-                            window.location.href = '/totalOversikt?' + "id="+store.activeUser?.schoolID
-                        }else{
+                            window.location.href = '/totalOversikt?' + "id=" + store.activeUser?.schoolID
+                        } else {
                             setInvalidLogin(true)
                         }
                     })
             }}
-        > 
+        >
             <Form>
                 <Field name="username" type="username" placeholder="Username" className={formStyles.field} />
                 <Field name="password" type="password" placeholder="Passord" className={formStyles.field} />
@@ -43,6 +43,6 @@ const LoginForm: React.FC = observer(() => {
                 </div>
             </Form>
         </Formik>
-  )
+    )
 })
 export default LoginForm;

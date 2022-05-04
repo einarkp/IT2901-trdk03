@@ -15,10 +15,9 @@ async function createAllPredictions() {
     });
 }
 
-
 async function importEveryThing() { // Takes some time to run, be patient :)
     await addSchools.addSchools()
-    await addSchools.addSchools()  // we run add schools for KNN to compute similar schools.
+    await addSchools.addSchools()  // we run add schools twice for KNN to compute similar schools.
     await addBudgets.addBudgets()
     await addAccountings.addAccountings()
     await addChanges.addChanges()
