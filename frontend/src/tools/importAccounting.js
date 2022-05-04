@@ -13,7 +13,7 @@ async function insertToDb(accounting) {
 }
 
 async function addAccountings() {
-    var filePath = "frontend/src/tools/Accounting2018_21Csv.csv";
+    var filePath = "frontend/src/tools/Accounting2018_22Csv.csv";
 
     const fileStream = fs.createReadStream(filePath);
 
@@ -44,7 +44,7 @@ async function addAccountings() {
     }
 }
 
-// addAccountings()
+//addAccountings()
 
 module.exports = {
     addAccountings
