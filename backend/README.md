@@ -23,8 +23,7 @@ Install requirements for development:
 
 
 Initialize database:
-`$ python manage.py makemigrations schoolbudget`
-`$ python manage.py migrate schoolbudget`
+`$ python manage.py migrate`
 
 
 Create an admin user:  
@@ -40,8 +39,8 @@ Run the server:
 
 
 If the models are changed, the database must be updated:
-`$ python manage.py makemigrations schoolbudget`
-`$ python manage.py migrate schoolbudget`
+`$ python manage.py makemigrations`
+`$ python manage.py migrate`
 
 https://docs.djangoproject.com/en/3.1/topics/migrations/
 
